@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import render_template
 import os
 import urllib2
 import json
@@ -14,19 +15,15 @@ def get_weather():
 @app.route("/")
 def index():
     data = json.loads(get_weather())
-    page = "<html><head><title>My Weather</title></head></html>"
-    page += "<h1>Weather for {}, {}</h1>".format(data.get("city").get("name"),
-            data.get("city").get("country"))
-    for day in data.get("list"):
-        page += "<b> date:</b>{} <b> min:</b>{}<b> max:</b>{} <b>description:</b> {} <br/>".format(
-        time.strftime('%d %B', time.localtime(day.get('dt'))),
-                (day.get("temp").get("min")),
-                day.get("temp").get("max"),
-                day.get("weather")[0].get("description"))
+    forcast_list = []
+    for d in data.get("list"):
+        day = time.strftime('%d %B', time.localtime(d.get('dt')))
+        mini = d.get("temp").get("min")
+        maxi = d.get("temp").get("max")
+        desc = d.get("weather")[0].get("description")
+        forcast_list.append((day, mini, maxi, desc))
+    return render_template("index.html", forcast_list=forcast_list)
 
-    page +="</body></html>"
-    return page
-@app.route("/goodbye")
 def goodbye():
     return "Goodbye, World"
 

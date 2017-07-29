@@ -1,0 +1,17 @@
+<html>
+	<head>
+		<title>My Weather App</title>
+	</head>
+	<body>
+		<h1>Weather forcast for Phillaur</h1>
+		{% for day in forcast_list %}
+		{% if day[3] == "moderate rain" %}
+		<p><font color="green">{{day[0]}} &ndash; {{day[1]}} &ndash; {{day[2]}} &ndash;
+			{{day[3]}}</font></p>
+		{% else %}
+	<p>{{day[0]}} &ndash; {{day[1]}} &ndash; {{day[2    ]}} &ndash;  {{day[3]}}</p>
+		{% endif %}	
+	{% endfor %}
+	</body>
+</html>
+
