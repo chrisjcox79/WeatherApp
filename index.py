@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import make_response
+import datetime
 import os
 import urllib2
 import json
@@ -15,7 +17,15 @@ def get_weather(city):
 
 @app.route("/")
 def index():
-    searchCity = request.args.get("searchcity")
+    searchCity = None
+    if request.method == "GET":
+        searchCity = request.args.get("searchcity")
+    else:
+        searchCity = request.form.get("searchcity")
+
+    if not searchCity:
+        searchCity = request.cookies.get("last_city")
+
     if not searchCity:
             searchCity = "Phillaur"
     try:
@@ -36,7 +46,11 @@ def index():
         maxi = d.get("temp").get("max")
         desc = d.get("weather")[0].get("description")
         forcast_list.append((day, mini, maxi, desc))
-    return render_template("index.html", forcast_list=forcast_list, city=city, country=country)
+    response = make_response(render_template("index.html", forcast_list=forcast_list, city=city,country=country))
+    if request.args.get("remember"):
+        response.set_cookie("last_city", "{},{}".format(city, country),
+                expires=datetime.datetime.today() + datetime.timedelta(days=365))
+    return response
 
 @app.route("/hello/<name>/<int:age>")
 def hello_name(name, age):

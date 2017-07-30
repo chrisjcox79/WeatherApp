@@ -1,0 +1,36 @@
+input[type=button]
+{
+    background-color: #1E1E1E;
+    color: #979797;
+    height: 24px;
+    width: 103px;
+    color: #bbbbbb;
+    text-transform:uppercase;
+    box-shadow:-1px 2px #6E6B6A inset;
+}
+
+table.hovertable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #999999;
+	border-collapse: collapse;
+}
+table.hovertable th {
+	background-color:#c3dde0;
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a9c6c9;
+}
+table.hovertable tr {
+	background-color:#d4e3e5;
+}
+table.hovertable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a9c6c9;
+}
+

@@ -1,21 +1,28 @@
 <html>
 	<head>
-		<title>My Weather App</title>
+		<title>San Weather App</title>
+		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 	</head>
 	<body>
-		<form>
+		<!--label>GET: </label><input name="method" type="radio" id="method    " value="GET" checked>
+		&nbsp; <label> POST:</label> <input name="method" type="radio" id="method" value="POST">
+		<form method=document.getElementById("method").value action="/weather"-->
+			<form>
 			View forcast for city: <input type="text" name="searchcity">
 			<input type="Submit" value="Submit">
+			<input type="checkbox" name="remember" checked="checked">Remember<br/ >
 		</form>
 		<h1>Weather forcast for {{ city }}, {{ country }} </h1>
-		<table border = "1">
+		<table class="hovertable">
 			<tr>
 				<th> Date</th><th>Min</th><th>Max</th>
 					<th>Description</th>
 			</tr>
 
 		{% for day in forcast_list %}
-		<tr>
+		<tr onmouseover="this.style.backgroundColor='#ffff66';"
+			onmouseout="this.style.backgroundColor='#d4e3e5';">
 			<td>{{day[0]}}</td>
 			<td>{{day[1]}}</td>
 			<td>{{day[2]}}</td>
