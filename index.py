@@ -14,6 +14,8 @@ import time
 app = Flask(__name__)
 
 def timeConvert(miliTime):
+    """ convert millitary time to standard time.
+    """
     hours, minutes, seconds = miliTime.split(":")
     hours, minutes, seconds = int(hours), int(minutes), int(seconds)
     setting = " PM"
@@ -55,17 +57,33 @@ def getCityFromMyIp(ip):
     data = json.load(urllib2.urlopen(geoloc))
     return str(data["city"])
 
-def getSunriseSunset(lat, lng, date):
+def getSunriseSunset(lat, lng, date, timezone):
+    """ provides sunrise and sunset time in 
+        local timezone of city whose longitude 
+        and latitude are given.
+
+        Args:
+            latitude (float): latitude location value
+            longitude (float): longitudnal location value
+            date (str): date for which sunrise and sunset
+                is requested.
+            timezone (str): timezone to convert utc tp local time
+
+        Returns:
+            (tuple): sunrise and sunset in standard time
+
+    """
     # https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=2017-07-31
     url = "https://api.sunrise-sunset.org/json?lat={}&lng={}&date={}".format(lat, lng, date)
     data = json.load(urllib2.urlopen(url))
-    sunrise = data.get("results").get("sunrise").split()[0]
+    sunrise = data.get("results").get("sunrise").split()[0] # remove AM/PM from UTC time
     sunset =  data.get("results").get("sunset").split()[0]
-    timeZone = getTimeZone(lat, lng)
-    return convertUTCtoLocal(date, sunrise, timeZone), convertUTCtoLocal(date, sunset, timeZone)
+    return convertUTCtoLocal(date, sunrise, timezone), convertUTCtoLocal(date, sunset, timezone)
 
 
 def convertUTCtoLocal(date, utcTime, timezone):
+    """ converts UTC time to given timezone
+    """
     to_zone = pytz.timezone(timezone)
     from_zone = _tz.gettz('UTC')
     utc = _datetime.strptime('%s %s' % (date, utcTime), '%Y-%m-%d %H:%M:%S')
@@ -74,41 +92,12 @@ def convertUTCtoLocal(date, utcTime, timezone):
     return timeConvert(str(local.time()))
 
 
-# def getSunriseSunset(latitude, longitude, date):
-#     """ provides sunrise and sunset time in 
-#         local timezone of city whose longitude 
-#         and latitude are given.
-
-#         Args:
-#             latitude (float): latitude location value
-#             longitude (float): longitudnal location value
-
-#         Returns:
-#             (tuple): sunrise and sunset in standard time
-
-#     """
-#     # print date
-#     url = "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&date={}&username=seaurchin".format(
-#         latitude,
-#         longitude,
-#         date
-#         )
-#     try:
-#         resp = urllib2.urlopen(url)
-#     except Exception:
-#         return (0, 0)
-
-#     geoData = json.load(resp)
-#     sunrise = geoData.get("sunrise").split()[-1]
-#     sunset = geoData.get("sunset").split()[-1]
-#     timezone = geoData.get("timezoneId")
-#     return timeConvert(sunrise), timeConvert(sunset)
-
 def getTimeZone(latitude, longitude):
     """ Provides timezone for a given longitude and latitude
     """
     # Note: We can also use this web service to get sunrise 
     # and sunset but due to inacuracy we use surise-sunset.org
+    print "getting time zone from web service"
     url = "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(
         latitude,
         longitude)
@@ -122,6 +111,9 @@ def getTimeZone(latitude, longitude):
 @app.route("/")
 def index():
     searchCity = None
+    lat = None
+    lng = None
+    timeZone = None
     if request.method == "GET":
         searchCity = request.args.get("searchcity")
     else:
@@ -132,7 +124,6 @@ def index():
 
     if not searchCity:
             lat, lng, searchCity = getLongLatFromIP(getIP())
-
 
     try:
         weatherData = get_weather(searchCity)
@@ -145,22 +136,31 @@ def index():
         return render_template("invalid_city.html", user_input=searchCity)
     country = data["city"]["country"]
 
-    lat = data["city"]["coord"]["lat"]
-    lng = data["city"]["coord"]["lon"]
+    lat = lat or data["city"]["coord"]["lat"]
+    lng = lng or data["city"]["coord"]["lon"]
     forcast_list = []
+    timeZoneCookeName = "{}_{}_{}".format(city.lower(), lat, lng)
+    print "Retrieving %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
+    timeZone = request.cookies.get(timeZoneCookeName)
+
+    if not timeZone:
+        timeZone = getTimeZone(lat, lng)
+
     for d in data.get("list"):
         day = time.strftime('%G-%m-%d', time.localtime(d.get('dt')))
         mini = d.get("temp").get("min")
         maxi = d.get("temp").get("max")
-        humid = d.get("humidity")
+        humid = "N/A" if d.get("humidity") == 0 else d.get("humidity")
         desc = d.get("weather")[0].get("description")
-        sunrise , sunset =  getSunriseSunset(lat, lng, day)
+        sunrise , sunset =  getSunriseSunset(lat, lng, day, timeZone)
         forcast_list.append((day, mini, maxi, humid, desc, sunrise, sunset))
     response = make_response(render_template("index.html", forcast_list=forcast_list, 
         lat=lat, lng=lng, city=city,country=country))
     if request.args.get("remember"):
         response.set_cookie("last_search", "{},{}".format(city, country),
                 expires=datetime.datetime.today() + datetime.timedelta(days=365))
+    response.set_cookie(timeZoneCookeName, timeZone,
+            expires=datetime.datetime.today() + datetime.timedelta(days=365))
     return response
 
 
