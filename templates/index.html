@@ -14,10 +14,13 @@
 			<input type="checkbox" name="remember" checked="checked">Remember<br/ >
 		</form>
 		<h1>Weather forcast for {{ city }}, {{ country }} </h1>
+		<h3>Latitude: {{lat}}, Longitude: {{lng}}</h3>
+		<div>
 		<table class="hovertable">
 			<tr>
-				<th> Date</th><th>Min</th><th>Max</th>
-					<th>Description</th>
+				<th> Date</th><th>Min</th><th>Max</th><th>Humidity</th>
+					<th>Description</th><th>Sunrise</th>
+					<th>Sunset</th>
 			</tr>
 
 		{% for day in forcast_list %}
@@ -27,8 +30,14 @@
 			<td>{{day[1]}}</td>
 			<td>{{day[2]}}</td>
 			<td>{{day[3]}}</td>
+			<td>{{day[4]}}</td>
+			<td>{{day[5]}}</td>
+			<td>{{day[6]}}</td>
 		</tr>
 		{% endfor %}
+		</table>
+		
+		</div>
 	</body>
 </html>
 
