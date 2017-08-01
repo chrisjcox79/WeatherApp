@@ -9,7 +9,7 @@ from datetime import datetime as _datetime
 import os
 import urllib2
 import json
-import time
+
 
 app = Flask(__name__)
 
@@ -24,8 +24,8 @@ def timeConvert(miliTime):
         hours -= 12
     return "%02d:%02d:%02d"  % (hours, minutes, seconds) + setting
 
-def get_weather(city):
-    url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt=10&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city)
+def get_weather(city, count=1):
+    url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
     response = urllib2.urlopen(url).read()
     return response
 
@@ -113,6 +113,7 @@ def index():
     searchCity = None
     lat = None
     lng = None
+    count = None
     timeZone = None
     if request.method == "GET":
         searchCity = request.args.get("searchcity")
@@ -125,8 +126,11 @@ def index():
     if not searchCity:
             lat, lng, searchCity = getLongLatFromIP(getIP())
 
+    count = request.args.get("count") or request.cookies.get("count", 1)
+
+
     try:
-        weatherData = get_weather(searchCity)
+        weatherData = get_weather(searchCity, count=count)
     except Exception:
         return render_template("invalid_city.html", user_input=searchCity)
     data = json.loads(weatherData)
@@ -147,7 +151,7 @@ def index():
         timeZone = getTimeZone(lat, lng)
 
     for d in data.get("list"):
-        day = time.strftime('%G-%m-%d', time.localtime(d.get('dt')))
+        day = _datetime.fromtimestamp(1501567200).strftime('%Y-%m-%d')
         mini = d.get("temp").get("min")
         maxi = d.get("temp").get("max")
         humid = "N/A" if d.get("humidity") == 0 else d.get("humidity")
@@ -155,12 +159,14 @@ def index():
         sunrise , sunset =  getSunriseSunset(lat, lng, day, timeZone)
         forcast_list.append((day, mini, maxi, humid, desc, sunrise, sunset))
     response = make_response(render_template("index.html", forcast_list=forcast_list, 
-        lat=lat, lng=lng, city=city,country=country))
+        lat=lat, lng=lng, city=city,country=country, count=count or request.cookies.get("count")))
     if request.args.get("remember"):
         response.set_cookie("last_search", "{},{}".format(city, country),
-                expires=datetime.datetime.today() + datetime.timedelta(days=365))
+                expires=_datetime.today() + datetime.timedelta(days=365))
     response.set_cookie(timeZoneCookeName, timeZone,
-            expires=datetime.datetime.today() + datetime.timedelta(days=365))
+            expires=_datetime.today() + datetime.timedelta(days=365))
+    response.set_cookie("count", str(count),
+            expires=_datetime.today() + datetime.timedelta(days=365))
     return response
 
 
