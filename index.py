@@ -151,13 +151,13 @@ def index():
         timeZone = getTimeZone(lat, lng)
 
     for d in data.get("list"):
-        day = _datetime.fromtimestamp(1501567200).strftime('%Y-%m-%d')
+        date = _datetime.fromtimestamp(d.get('dt')).strftime('%Y-%m-%d')
         mini = d.get("temp").get("min")
         maxi = d.get("temp").get("max")
         humid = "N/A" if d.get("humidity") == 0 else d.get("humidity")
         desc = d.get("weather")[0].get("description")
-        sunrise , sunset =  getSunriseSunset(lat, lng, day, timeZone)
-        forcast_list.append((day, mini, maxi, humid, desc, sunrise, sunset))
+        sunrise , sunset =  getSunriseSunset(lat, lng, date, timeZone)
+        forcast_list.append((date, mini, maxi, humid, desc, sunrise, sunset))
     response = make_response(render_template("index.html", forcast_list=forcast_list, 
         lat=lat, lng=lng, city=city,country=country, count=count or request.cookies.get("count")))
     if request.args.get("remember"):
