@@ -17,6 +17,12 @@ import urllib2
 import json
 
 
+class CreateForm(FlaskForm):
+    cityName = StringField('View forcast of city:', validators=[InputRequired()])
+    count = IntegerField("Days")
+    submit = SubmitField("Submit")
+
+
 def getLongLatFromIP(ip):
     city = getCityFromMyIp(ip)
     url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
