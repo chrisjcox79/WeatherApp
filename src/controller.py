@@ -5,6 +5,11 @@ from flask import render_template
 from flask import request
 from flask import make_response
 
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, IntegerField, SubmitField
+from wtforms.validators import DataRequired, InputRequired
+
 import timeUtils as _timeUtils
 import utils as _utils
 
