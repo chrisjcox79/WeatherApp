@@ -2,11 +2,11 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
   $(function() {
     $('submit#calculate').bind('click', function() {
       alert("Hi");
-      $.getJSON($SCRIPT_ROOT + '/', {
+      $.getJSON($SCRIPT_ROOT + '/_add_strings', {
         a: $('input[name="searchcity"]').val(),
         b: $('input[name="count"]').val()
       }, function(data) {
-        $("#result").text("Hi");
+        $("#result").text(data.text);
       });
       return false;
     });

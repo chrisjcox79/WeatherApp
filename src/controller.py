@@ -23,7 +23,7 @@ import json
 
 
 class CreateForm(FlaskForm):
-    searchcity = StringField('View forcast of city:', validators=[InputRequired()])
+    searchCity = StringField('View forcast of city:', validators=[InputRequired()])
     count = IntegerField("Days")
     submit = SubmitField("Submit")
 
@@ -81,9 +81,9 @@ def index():
     exactMatch = True
     timeZone = None
     if request.method == "GET":
-        searchCity = request.args.get("searchcity")
+        searchCity = request.args.get("searchCity")
     else:
-        searchCity = request.form.get("searchcity")
+        searchCity = request.form.get("searchCity")
 
     if not searchCity:
         searchCity = request.cookies.get("last_save_city")
@@ -113,8 +113,8 @@ def index():
 
     country = data["city"]["country"]
 
-    # if searchCity != city:
-    #     render_template("invalid_city.html", user_input=searchCity)
+    if searchCity != city:
+        render_template("invalid_city.html", user_input=searchCity)
 
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
@@ -143,7 +143,7 @@ def index():
             country=country, count=count or request.cookies.get("count")
             )
         )
-    # print "city: %s" % city
+
     if request.args.get("remember"):
         response.set_cookie("last_save_city", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
@@ -152,5 +152,6 @@ def index():
     response.set_cookie("count", str(count),
             expires=_datetime.today() + datetime.timedelta(days=365))
     return response
+
 
 

@@ -4,7 +4,7 @@
 import json
 import urllib2
 
-def getJsonFromURL(url, timeout=5):
+def getJsonFromURL(url, timeout=15):
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
     except Exception:
