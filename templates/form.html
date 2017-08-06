@@ -1,11 +1,11 @@
 
 
-<form action="/forcast">
+<form action="#">
     <dl>
-        <dd>{{ form.cityName.label }} {{ form.cityName(size=20) }} 
+        <dd>{{ form.searchcity.label }} {{ form.searchcity(size=20) }} 
         	for next {{ form.count(size=2) }} {{ form.count.label }}
-        	<input type="submit" value="Submit" onclick="getWeatherForcaset(
-        	document.getElementsByName('cityName')[whole_number].value,
+        	<input type="submit" value="Submit" id="calculate" onclick="getWeatherForcaset(
+        	document.getElementsByName('searchcity')[whole_number].value,
         	document.getElementsByName('count')[whole_number].value
         	);" >
         </dd>

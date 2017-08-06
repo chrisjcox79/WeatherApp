@@ -23,7 +23,7 @@ import json
 
 
 class CreateForm(FlaskForm):
-    cityName = StringField('View forcast of city:', validators=[InputRequired()])
+    searchcity = StringField('View forcast of city:', validators=[InputRequired()])
     count = IntegerField("Days")
     submit = SubmitField("Submit")
 
@@ -94,19 +94,27 @@ def index():
     exactMatch = bool(request.args.get("exactMatch"))
     count = request.args.get("count") or request.cookies.get("count", 1)
 
-    url = _utils.getWeatherURL(searchCity, count=count)
-    data = _utils.getJsonFromURL(url)
+    form = CreateForm(request.form)
+    form.count.default = count
+    form.count.label = "Days" if count > 1 else "Day" 
+
+    form.count.data = count
+
+
+    jsonUrl = _utils.getWeatherURL(searchCity, count=count)
+    data = _utils.getJsonFromURL(jsonUrl)
     city = data["city"]["name"]
+    print "City: %s , searchCity: %s " % (city,  searchCity)
     if not isinstance(city , str):
-        if data["city"]["name"] != searchCity and exactMatch:
-            return render_template("invalid_city.html", user_input=searchCity)
+        if city != searchCity and exactMatch:
+            return render_template("invalid_city.html", form=form, user_input=searchCity)
         else:
              city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
 
     country = data["city"]["country"]
 
-    if searchCity != city:
-        render_template("invalid_city.html", user_input=searchCity)
+    # if searchCity != city:
+    #     render_template("invalid_city.html", user_input=searchCity)
 
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
@@ -127,10 +135,17 @@ def index():
         desc = d.get("weather")[0].get("description")
         sunrise , sunset =  getSunriseSunset(lat, lng, date, timeZone)
         forcast_list.append((date, mini, maxi, humid, desc, sunrise, sunset))
-    response = make_response(render_template("index.html", forcast_list=forcast_list, 
-        lat=lat, lng=lng, city=city,country=country, count=count or request.cookies.get("count")))
+    response = make_response(
+        render_template(
+            "index.html", form = form, 
+            forcast_list=forcast_list,
+            lat=lat, lng=lng, city=city,
+            country=country, count=count or request.cookies.get("count")
+            )
+        )
+    # print "city: %s" % city
     if request.args.get("remember"):
-        response.set_cookie("last_save_city", "{},{}".format(city.replace(" ", ""), country),
+        response.set_cookie("last_save_city", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
     response.set_cookie(timeZoneCookeName, timeZone,
             expires=_datetime.today() + datetime.timedelta(days=365))

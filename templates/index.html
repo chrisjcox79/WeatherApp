@@ -1,28 +1,29 @@
 <html>
 	<head>
-		<title>San Weather App</title>
-		<meta name="author" content="Sanjeev Kumar">
-		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
-		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+		{% include 'head.html' %}
+		<script type=text/javascript>
+		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		  $(function() {
+		    $('submit#calculate').bind('click', function() {
+		      alert("Hi");
+		      $.getJSON($SCRIPT_ROOT + '/', {
+		        a: $('input[name="searchcity"]').val(),
+		        b: $('input[name="count"]').val()
+		      }, function(data) {
+		        $("#result").text("Hi");
+		      });
+		      return false;
+		    });
+		  });
+  </script>
 	</head>
 	<body>
 		<!--label>GET: </label><input name="method" type="radio" id="method    " value="GET" checked>
 		&nbsp; <label> POST:</label> <input name="method" type="radio" id="method" value="POST">
 		<form method=document.getElementById("method").value action="/weather"-->
-			<form>
-			View forcast of city: <input type="text" name="searchcity"> for next
-			<input type="text" value={{count}} name="count" maxlength="2" size="2"> 
-			{% if count > 1 %}
-			days
-			{% else %}
-			day
-			{% endif %}
-			<input type="Submit" value="Submit">
-			<br />
-			<input type="checkbox" name="exactMatch" checked="checked">Exact Match 
-			&nbsp;
-			<input type="checkbox" name="remember">Remember<br/ >
-		</form>
+
+		{% include 'form.html' %}
+
 		<h1>Weather forcast for {{ city }}, {{ country }} </h1>
 		<h3>Latitude: {{lat}}, Longitude: {{lng}}</h3>
 		<div>
@@ -48,6 +49,7 @@
 		</table>
 		
 		</div>
+		<span id="result">?</span>
 	</body>
 </html>
 
