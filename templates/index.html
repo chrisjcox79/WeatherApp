@@ -18,7 +18,10 @@
 			day
 			{% endif %}
 			<input type="Submit" value="Submit">
-			<input type="checkbox" name="remember" checked="checked">Remember<br/ >
+			<br />
+			<input type="checkbox" name="exactMatch" checked="checked">Exact Match 
+			&nbsp;
+			<input type="checkbox" name="remember">Remember<br/ >
 		</form>
 		<h1>Weather forcast for {{ city }}, {{ country }} </h1>
 		<h3>Latitude: {{lat}}, Longitude: {{lng}}</h3>

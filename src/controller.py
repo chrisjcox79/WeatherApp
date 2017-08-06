@@ -13,12 +13,6 @@ import urllib2
 import json
 
 
-def get_weather(city, count=1):
-    url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
-    response = urllib2.urlopen(url).read()
-    return response
-
-
 def getIP():
     """ get ip of visitor.
     """
@@ -76,6 +70,7 @@ def index():
     lat = None
     lng = None
     count = None
+    exactMatch = True
     timeZone = None
     if request.method == "GET":
         searchCity = request.args.get("searchcity")
@@ -83,29 +78,45 @@ def index():
         searchCity = request.form.get("searchcity")
 
     if not searchCity:
-        searchCity = request.cookies.get("last_search")
+        searchCity = request.cookies.get("last_save_city")
 
     if not searchCity:
             lat, lng, searchCity = getLongLatFromIP(getIP())
 
+    exactMatch = bool(request.args.get("exactMatch"))
     count = request.args.get("count") or request.cookies.get("count", 1)
 
     url = _utils.getWeatherURL(searchCity, count=count)
     data = _utils.getJsonFromURL(url)
+    city = data["city"]["name"]
+    if not isinstance(city , str):
+        if data["city"]["name"] != searchCity and exactMatch:
+            return render_template("invalid_city.html", user_input=searchCity)
+
+
     try:
-        city = str(data["city"]["name"].encode('utf8'))
-    except KeyError:
+        city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
+        # city = str(data["city"]["name"])
+    except Exception:
+
         return render_template("invalid_city.html", user_input=searchCity)
     country = data["city"]["country"]
 
+    if searchCity != city:
+        render_template("invalid_city.html", user_input=searchCity)
+    else:
+        print "*" * 50
+        print searchCity, city
+        print "*" * 50
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
     forcast_list = []
     timeZoneCookeName = "{}_{}_{}".format(city.lower(), lat, lng)
-    print "Retrieving %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
     timeZone = request.cookies.get(timeZoneCookeName)
 
-    if not timeZone:
+    if timeZone:
+        print "Retrieving %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
+    else:
         timeZone = _timeUtils.getTimeZone(lat, lng)
 
     for d in data.get("list"):
@@ -119,7 +130,7 @@ def index():
     response = make_response(render_template("index.html", forcast_list=forcast_list, 
         lat=lat, lng=lng, city=city,country=country, count=count or request.cookies.get("count")))
     if request.args.get("remember"):
-        response.set_cookie("last_search", "{},{}".format(city, country),
+        response.set_cookie("last_save_city", "{},{}".format(city.replace(" ", ""), country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
     response.set_cookie(timeZoneCookeName, timeZone,
             expires=_datetime.today() + datetime.timedelta(days=365))
