@@ -6,12 +6,12 @@ from dateutil import tz as _tz
 import datetime
 import pytz
 from datetime import datetime as _datetime
-import os
+from src import app
 import urllib2
 import json
 
-
-app = Flask(__name__)
+print "Hello from index.py"
+# app = Flask(__name__)
 
 def timeConvert(miliTime):
     """ convert millitary time to standard time.
@@ -170,8 +170,6 @@ def index():
     return response
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
