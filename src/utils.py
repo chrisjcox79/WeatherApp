@@ -13,3 +13,14 @@ def getJsonFromURL(url, timeout=5):
 
 def getWeatherURL(city, count=2):
 	return "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
+
+def getLongLatURL():
+	pass
+
+def getSunriseSunsetURL(lat, lng, date):
+	return "https://api.sunrise-sunset.org/json?lat={}&lng={}&date={}".format(lat, lng, date)
+
+def getTimeZoneURL(latitude, longitude):
+	return "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(
+        latitude,
+        longitude)

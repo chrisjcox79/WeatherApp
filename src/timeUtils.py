@@ -28,3 +28,14 @@ def convertUTCtoLocal(date, utcTime, timezone):
     utc = utc.replace(tzinfo=from_zone)
     local = utc.astimezone(to_zone)
     return timeConvert(str(local.time()))
+
+
+def getTimeZone(latitude, longitude):
+    """ Provides timezone for a given longitude and latitude
+    """
+    # Note: We can also use this web service to get sunrise 
+    # and sunset but due to inacuracy we use surise-sunset.org
+    print "getting time zone from web service"
+    url = _utils.getTimeZoneURL(latitude, longitude)
+    geoData = _utils.getJsonFromURL(url)
+    return geoData.get("timezoneId")

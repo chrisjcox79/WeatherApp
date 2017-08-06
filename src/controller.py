@@ -1,28 +1,17 @@
+from src import app
 from flask import Flask
 from flask import render_template
 from flask import request
 from flask import make_response
 from dateutil import tz as _tz
+import timeUtils as _timeUtils
+import utils as _utils
 import datetime
 import pytz
 from datetime import datetime as _datetime
-from src import app
 import urllib2
 import json
 
-print "Hello from index.py"
-# app = Flask(__name__)
-
-def timeConvert(miliTime):
-    """ convert millitary time to standard time.
-    """
-    hours, minutes, seconds = miliTime.split(":")
-    hours, minutes, seconds = int(hours), int(minutes), int(seconds)
-    setting = " PM"
-    if hours > 12:
-        setting = " AM"
-        hours -= 12
-    return "%02d:%02d:%02d"  % (hours, minutes, seconds) + setting
 
 def get_weather(city, count=1):
     url = "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
@@ -73,40 +62,13 @@ def getSunriseSunset(lat, lng, date, timezone):
             (tuple): sunrise and sunset in standard time
 
     """
-    # https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=2017-07-31
-    url = "https://api.sunrise-sunset.org/json?lat={}&lng={}&date={}".format(lat, lng, date)
-    data = json.load(urllib2.urlopen(url))
-    sunrise = data.get("results").get("sunrise").split()[0] # remove AM/PM from UTC time
+    url = _utils.getSunriseSunsetURL(lat, lng, date)
+    data = _utils.getJsonFromURL(url)
+    sunrise = data.get("results").get("sunrise").split()[0] # remove AM/PM from UTC time string
     sunset =  data.get("results").get("sunset").split()[0]
-    return convertUTCtoLocal(date, sunrise, timezone), convertUTCtoLocal(date, sunset, timezone)
+    return _timeUtils.convertUTCtoLocal(date, sunrise, timezone), _timeUtils.convertUTCtoLocal(date, sunset, timezone)
 
 
-def convertUTCtoLocal(date, utcTime, timezone):
-    """ converts UTC time to given timezone
-    """
-    to_zone = pytz.timezone(timezone)
-    from_zone = _tz.gettz('UTC')
-    utc = _datetime.strptime('%s %s' % (date, utcTime), '%Y-%m-%d %H:%M:%S')
-    utc = utc.replace(tzinfo=from_zone)
-    local = utc.astimezone(to_zone)
-    return timeConvert(str(local.time()))
-
-
-def getTimeZone(latitude, longitude):
-    """ Provides timezone for a given longitude and latitude
-    """
-    # Note: We can also use this web service to get sunrise 
-    # and sunset but due to inacuracy we use surise-sunset.org
-    print "getting time zone from web service"
-    url = "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(
-        latitude,
-        longitude)
-    try:
-        resp = urllib2.urlopen(url)
-    except Exception:
-        return (0, 0)
-    geoData = json.load(resp)
-    return geoData.get("timezoneId")
 
 @app.route("/")
 def index():
@@ -128,14 +90,10 @@ def index():
 
     count = request.args.get("count") or request.cookies.get("count", 1)
 
-
+    url = _utils.getWeatherURL(searchCity, count=count)
+    data = _utils.getJsonFromURL(url)
     try:
-        weatherData = get_weather(searchCity, count=count)
-    except Exception:
-        return render_template("invalid_city.html", user_input=searchCity)
-    data = json.loads(weatherData)
-    try:
-        city = data["city"]["name"]
+        city = str(data["city"]["name"].encode('utf8'))
     except KeyError:
         return render_template("invalid_city.html", user_input=searchCity)
     country = data["city"]["country"]
@@ -148,7 +106,7 @@ def index():
     timeZone = request.cookies.get(timeZoneCookeName)
 
     if not timeZone:
-        timeZone = getTimeZone(lat, lng)
+        timeZone = _timeUtils.getTimeZone(lat, lng)
 
     for d in data.get("list"):
         date = _datetime.fromtimestamp(d.get('dt')).strftime('%Y-%m-%d')

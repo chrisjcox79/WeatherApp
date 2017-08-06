@@ -6,4 +6,4 @@ app = Flask('weatherApp')
 app.config['SECRET_KEY'] = 'random'
 app.debug = True
 toolbar = DebugToolbarExtension(app)
-#from src import *
+from src.controller import *
