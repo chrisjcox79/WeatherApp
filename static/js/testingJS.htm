@@ -1,0 +1,29 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript">
+
+ function pullData(url) {
+
+    var jsonData = $.ajax({
+      url: url,
+      type: 'GET',
+      dataType: 'json',
+    }).done(function (results) {
+      var val = Object.keys(results);
+      document.write("Data: " + val + "<br>")
+    });
+
+}
+myUrl = "http://api.openweathermap.org/data/2.5/forecast/daily?q=Phillaur&cnt=1&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be"
+
+</script>
+</head>
+<body>
+<div id="msg">No Msg</div>
+<div id= "dat">No Data</div>
+</body>
+</html>

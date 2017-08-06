@@ -1,0 +1,17 @@
+
+
+<form action="/forcast">
+    <dl>
+        <dd>{{ form.cityName.label }} {{ form.cityName(size=20) }} 
+        	for next {{ form.count(size=2) }} {{ form.count.label }}
+        	<input type="submit" value="Submit" onclick="getWeatherForcaset(
+        	document.getElementsByName('cityName')[whole_number].value,
+        	document.getElementsByName('count')[whole_number].value
+        	);" >
+        </dd>
+        <dd>
+        	<label value="Remember" for="remember"><small>Remember</small><input type="checkbox" value="on" id="remember" name="remember" checked="checked"></label> 
+        </dd>
+
+    </dl>
+ </form>
