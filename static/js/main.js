@@ -13,3 +13,9 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
   });
 
 
+function getWeatherForcaset(city, count){
+
+  alert(city, count);
+
+}
+
