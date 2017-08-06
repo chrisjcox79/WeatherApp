@@ -24,3 +24,8 @@ def getTimeZoneURL(latitude, longitude):
 	return "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(
         latitude,
         longitude)
+
+def getIP():
+    """ get ip of visitor.
+    """
+    return urllib2.urlopen("http://ipinfo.io/ip").read().strip()

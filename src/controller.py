@@ -1,23 +1,21 @@
 from src import app
+
 from flask import Flask
 from flask import render_template
 from flask import request
 from flask import make_response
-from dateutil import tz as _tz
+
 import timeUtils as _timeUtils
 import utils as _utils
+
+
+from dateutil import tz as _tz
 import datetime
 import pytz
 from datetime import datetime as _datetime
 import urllib2
 import json
 
-
-def getIP():
-    """ get ip of visitor.
-    """
-    url = "http://ipinfo.io/ip"
-    return urllib2.urlopen(url).read().strip()
 
 def getLongLatFromIP(ip):
     city = getCityFromMyIp(ip)
@@ -63,7 +61,6 @@ def getSunriseSunset(lat, lng, date, timezone):
     return _timeUtils.convertUTCtoLocal(date, sunrise, timezone), _timeUtils.convertUTCtoLocal(date, sunset, timezone)
 
 
-
 @app.route("/")
 def index():
     searchCity = None
@@ -81,7 +78,7 @@ def index():
         searchCity = request.cookies.get("last_save_city")
 
     if not searchCity:
-            lat, lng, searchCity = getLongLatFromIP(getIP())
+            lat, lng, searchCity = getLongLatFromIP(_utils.getIP())
 
     exactMatch = bool(request.args.get("exactMatch"))
     count = request.args.get("count") or request.cookies.get("count", 1)
@@ -92,22 +89,14 @@ def index():
     if not isinstance(city , str):
         if data["city"]["name"] != searchCity and exactMatch:
             return render_template("invalid_city.html", user_input=searchCity)
+        else:
+             city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
 
-
-    try:
-        city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
-        # city = str(data["city"]["name"])
-    except Exception:
-
-        return render_template("invalid_city.html", user_input=searchCity)
     country = data["city"]["country"]
 
     if searchCity != city:
         render_template("invalid_city.html", user_input=searchCity)
-    else:
-        print "*" * 50
-        print searchCity, city
-        print "*" * 50
+
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
     forcast_list = []
@@ -115,7 +104,7 @@ def index():
     timeZone = request.cookies.get(timeZoneCookeName)
 
     if timeZone:
-        print "Retrieving %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
+        print "Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
     else:
         timeZone = _timeUtils.getTimeZone(lat, lng)
 
@@ -137,8 +126,5 @@ def index():
     response.set_cookie("count", str(count),
             expires=_datetime.today() + datetime.timedelta(days=365))
     return response
-
-
-
 
 
