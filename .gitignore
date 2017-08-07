@@ -2,3 +2,5 @@ terminal.glue
 testingJS.htm
 *.pyc
 activate
+*.pem
+venv
