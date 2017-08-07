@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-__version__ = '0.1'
+__version__ = '0.2'
+import sys
 from flask import Flask
-from flask_debugtoolbar import DebugToolbarExtension
+
 app = Flask('weatherApp')
 app.config['SECRET_KEY'] = 'random'
-app.debug = True
-toolbar = DebugToolbarExtension(app)
 from src.controller import *
