@@ -104,7 +104,7 @@ def index():
     jsonUrl = _utils.getWeatherURL(searchCity, count=count)
     data = _utils.getJsonFromURL(jsonUrl)
     city = data["city"]["name"]
-    print "City: %s , searchCity: %s " % (city,  searchCity)
+    print("City: %s , searchCity: %s " % (city,  searchCity))
     if not isinstance(city , str):
         if city != searchCity and exactMatch:
             return render_template("invalid_city.html", form=form, user_input=searchCity)
@@ -114,7 +114,7 @@ def index():
     country = data["city"]["country"]
 
     if searchCity != city:
-        render_template("invalid_city.html", user_input=searchCity)
+        render_template("invalid_city.html", form=form, user_input=searchCity)
 
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
@@ -123,7 +123,7 @@ def index():
     timeZone = request.cookies.get(timeZoneCookeName)
 
     if timeZone:
-        print "Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city)
+        print("Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city))
     else:
         timeZone = _timeUtils.getTimeZone(lat, lng)
 
