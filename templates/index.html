@@ -1,55 +1,39 @@
-<html>
-	<head>
-		{% include 'head.html' %}
-		<script type=text/javascript>
-		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-		  $(function() {
-		    $('submit#calculate').bind('click', function() {
-		      alert("Hi");
-		      $.getJSON($SCRIPT_ROOT + '/', {
-		        a: $('input[name="searchcity"]').val(),
-		        b: $('input[name="count"]').val()
-		      }, function(data) {
-		        $("#result").text("Hi");
-		      });
-		      return false;
-		    });
-		  });
-  </script>
-	</head>
-	<body>
-		<!--label>GET: </label><input name="method" type="radio" id="method    " value="GET" checked>
-		&nbsp; <label> POST:</label> <input name="method" type="radio" id="method" value="POST">
-		<form method=document.getElementById("method").value action="/weather"-->
 
-		{% include 'form.html' %}
+{% extends "layout.html" %}
 
-		<h1>Weather forcast for {{ city }}, {{ country }} </h1>
-		<h3>Latitude: {{lat}}, Longitude: {{lng}}</h3>
-		<div>
-		<table class="hovertable">
-			<tr>
-				<th> Date</th><th>Min</th><th>Max</th><th>Humidity</th>
-					<th>Description</th><th>Sunrise</th>
-					<th>Sunset</th>
-			</tr>
+{% block content %}
 
-		{% for day in forcast_list %}
-		<tr onmouseover="this.style.backgroundColor='#ffff66';"
-			onmouseout="this.style.backgroundColor='#d4e3e5';">
-			<td>{{day[0]}}</td>
-			<td>{{day[1]}}</td>
-			<td>{{day[2]}}</td>
-			<td>{{day[3]}}</td>
-			<td>{{day[4]}}</td>
-			<td>{{day[5]}}</td>
-			<td>{{day[6]}}</td>
-		</tr>
-		{% endfor %}
-		</table>
-		
+<main class="hero-section">
+	<div class="container">
+		<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} </h1><br/>
+    <h3>Latitude: {{lat}}, Longitude: {{lng}}</h3>
+		<div class="section-content">
+			<table class="hovertable">
+				<tr>
+					<th> Date</th><th>Min</th><th>Max</th><th>Humidity</th>
+						<th>Description</th><th>Sunrise</th>
+						<th>Sunset</th>
+				</tr>
+					{% for day in forcast_list %}
+					<tr onmouseover="this.style.backgroundColor='#ffff66';"
+						onmouseout="this.style.backgroundColor='#d4e3e5';">
+						<td>{{day[0]}}</td>
+						<td>{{day[1]}}</td>
+						<td>{{day[2]}}</td>
+						<td>{{day[3]}}</td>
+						<td>{{day[4]}}</td>
+						<td>{{day[5]}}</td>
+						<td>{{day[6]}}</td>
+					</tr>
+					{% endfor %}
+				</table>
+		 </div>
+
+		 <div class="section-device">
+        <!-- Load Map Here -->
+      </div>
+		<!-- <div class="clearfix"></div> -->
 		</div>
-		<span id="result"></span>
-	</body>
-</html>
+  </main>
+{% endblock %}
 

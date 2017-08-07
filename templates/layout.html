@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include 'head.html' %}
+    <script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $(function() {
+        $('submit#calculate').bind('click', function() {
+          alert("Hi");
+          $.getJSON($SCRIPT_ROOT + '/', {
+            a: $('input[name="searchCity"]').val(),
+            b: $('input[name="count"]').val()
+          }, function(data) {
+            $("#result").text("Hi");
+          });
+          return false;
+        });
+      });
+  </script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        {% include 'form.html' %}
+    
+      </div>
+    </header>
+    
+    {% block content %}
+    {% endblock %}
+    
+  </body>
+</html>
