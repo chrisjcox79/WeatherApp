@@ -156,6 +156,11 @@ def index():
     return response
 
 
+@app.route("/realip", methods=["GET"])
+def realIp():
+    return jsonify({"HTTP_X_REAL_IP": request.environ.get('HTTP_X_REAL_IP')}), 200
+
+
 @app.route("/get_my_ip", methods=["GET"])
 def get_my_ip():
     return jsonify({'ip_using_remote_addr': request.remote_addr}), 200
