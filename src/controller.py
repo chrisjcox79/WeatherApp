@@ -166,3 +166,11 @@ def getmyip():
     return jsonify({'ip_using_REMOTE_ADDR_Environ': request.environ['REMOTE_ADDR']}), 200
 
 
+@app.route("/providedIps", methods=["GET"])
+def providedIps(): 
+    return jsonify({"X-Forwarded-For" : request.headers.getlist("X-Forwarded-For")}), 200
+
+@app.route("/accessroutes", methods=["GET"])
+def accessRoute():
+    return jsonify({"access_route" : request.access_route}), 200
+
