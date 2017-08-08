@@ -1,9 +1,8 @@
-<html>
-	<head>
-	</head>
-	<body>
-		{% include 'form.html' %}
-		<h1> Unable to find the city name {{ user_input }} </h1>
-	</body>
-</html>
+{% extends "layout.html" %}
+    {% block content %}
+    		<h1 class="signup-section"> Unable to find the city name {{ user_input }} </h1>
+    {% endblock %}
+
+
+
 

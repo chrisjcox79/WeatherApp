@@ -2,12 +2,9 @@
 
 <form>
     <dl>
-        <dd>{{ form.searchCity.label }} {{ form.searchCity(size=20) }} 
+        <dd> {{ form.searchCity.label }}  {{ form.searchCity(size=20) }} 
         	for next {{ form.count(size=2) }} {{ form.count.label }}
-        	<input type="submit" value="Submit" id="calculate" onclick="getWeatherForcaset(
-        	document.getElementsByName('searchCity')[whole_number].value,
-        	document.getElementsByName('count')[whole_number].value
-        	);" >
+        	<input type="submit" class="btn-primary" value="Submit" id="calculate" onclick="getWeatherForcaset('{{city}}','{{count}}');" >
         </dd>
         <dd>
             <input type="checkbox" name="exactMatch" checked="checked">Exact Match 

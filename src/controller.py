@@ -5,11 +5,10 @@ from flask import render_template
 from flask import request
 from flask import make_response
 
-
-from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField
+from wtforms import Form, StringField, IntegerField, SubmitField
+# from wtforms import , 
 from wtforms.validators import DataRequired, InputRequired
-
+import os
 import timeUtils as _timeUtils
 import utils as _utils
 
@@ -22,8 +21,8 @@ import urllib2
 import json
 
 
-class CreateForm(FlaskForm):
-    searchCity = StringField('View forcast of city:', validators=[InputRequired()])
+class CreateForm(Form):
+    searchCity = StringField('View forcast of city:', validators=[InputRequired("Please enter the city you want to check weather updates")])
     count = IntegerField("Days")
     submit = SubmitField("Submit")
 
@@ -95,9 +94,9 @@ def index():
     count = request.args.get("count") or request.cookies.get("count", 1)
 
     form = CreateForm(request.form)
+    form.searchCity(style="width: 900px;", class_="form-group")
     form.count.default = count
     form.count.label = "Days" if count > 1 else "Day" 
-
     form.count.data = count
 
 
@@ -127,6 +126,8 @@ def index():
     else:
         timeZone = _timeUtils.getTimeZone(lat, lng)
 
+    key = os.getenv("GOOGLE_API_KEY")
+
     for d in data.get("list"):
         date = _datetime.fromtimestamp(d.get('dt')).strftime('%Y-%m-%d')
         mini = d.get("temp").get("min")
@@ -139,7 +140,7 @@ def index():
         render_template(
             "index.html", form = form, 
             forcast_list=forcast_list,
-            lat=lat, lng=lng, city=city,
+            lat=lat, lng=lng, city=city, key=key,
             country=country, count=count or request.cookies.get("count")
             )
         )
