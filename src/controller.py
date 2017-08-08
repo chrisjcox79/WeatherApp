@@ -7,7 +7,6 @@ from flask import jsonify
 from flask import make_response
 
 from wtforms import Form, StringField, IntegerField, SubmitField
-# from wtforms import , 
 from wtforms.validators import DataRequired, InputRequired
 import os
 import timeUtils as _timeUtils
@@ -107,14 +106,13 @@ def index():
             lat, lng, searchCity = getLongLatFromIP(clientIP)
 
     exactMatch = bool(request.args.get("exactMatch"))
-    
 
-
+    searchCity = searchCity.lower().capitalize() 
 
     jsonUrl = _utils.getWeatherURL(searchCity, count=count)
     data = _utils.getJsonFromURL(jsonUrl)
     city = data["city"]["name"]
-    print("City: %s , searchCity: %s " % (city,  searchCity))
+
     if not isinstance(city , str):
         if city != searchCity and exactMatch:
             return render_template("invalid_city.html", form=form, user_input=searchCity)
@@ -176,22 +174,6 @@ def getHostIp():
 @app.route("/routerip", methods=["GET"])
 def hostIpAddress():
     return jsonify({"hostIPAddress" : getHostIp()}), 200
-
-
-@app.route("/realip", methods=["GET"])
-def realIp():
-    return jsonify({"HTTP_X_REAL_IP": request.environ.get('HTTP_X_REAL_IP')}), 200
-
-
-@app.route("/get_my_ip", methods=["GET"])
-def get_my_ip():
-    return jsonify({'ip_using_remote_addr': request.remote_addr}), 200
-
-
-@app.route("/getmyip", methods=["GET"])
-def getmyip():
-    return jsonify({'ip_using_REMOTE_ADDR_Environ': request.environ['REMOTE_ADDR']}), 200
-
 
 @app.route("/providedIps", methods=["GET"])
 def providedIps(): 

@@ -25,21 +25,30 @@ table.hovertable {
 table.hovertable th {
 	background-color:#c3dde0;
 	border-width: 1px;
-	padding: 8px;
+	padding: 6px;
 	border-style: solid;
 	border-color: #a9c6c9;
 }
+
 table.hovertable tr {
 	background-color:#d4e3e5;
 }
 table.hovertable td {
 	border-width: 1px;
 	padding: 5px;
+	width: 100%;
 	border-style: solid;
 	border-color: #a9c6c9;
 }
 
-         
+.date{
+    white-space: nowrap;
+}
+
+.id, .date, .action {
+   width: 2em;
+}
+
 div.flash {
     background: #CEE5F5;
     padding: 0.5em;
