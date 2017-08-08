@@ -15,6 +15,7 @@ input[type=button]
 }
 
 table.hovertable {
+	width: 100%;
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
 	color:#333333;
@@ -36,7 +37,6 @@ table.hovertable tr {
 table.hovertable td {
 	border-width: 1px;
 	padding: 5px;
-	width: 100%;
 	border-style: solid;
 	border-color: #a9c6c9;
 }

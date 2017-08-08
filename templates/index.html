@@ -17,13 +17,13 @@
 					{% for day in forcast_list %}
 					<tr onmouseover="this.style.backgroundColor='#ffff66';"
 						onmouseout="this.style.backgroundColor='#d4e3e5';">
-						<td width="56%" class="date">{{day[0]}}</td>
+						<td class="date">{{day[0]}}</td>
 						<td class="id">{{day[1]}}</td>
 						<td class="id">{{day[2]}}</td>
 						<td class="id">{{day[3]}}</td>
-						<td width="50%" >{{day[4]}}</td>
-						<td width="60%" class="date" >{{day[5]}}</td>
-						<td width="60%" class="date" >{{day[6]}}</td>
+						<td width="60%" >{{day[4]}}</td>
+						<td width="15%" class="date" >{{day[5]}}</td>
+						<td width="15%" class="date" >{{day[6]}}</td>
 					</tr>
 					{% endfor %}
 				</table>
