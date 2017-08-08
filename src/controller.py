@@ -20,7 +20,7 @@ import pytz
 from datetime import datetime as _datetime
 import urllib2
 import json
-
+from wtforms.fields import Label, Field
 
 class CreateForm(Form):
     searchCity = StringField('View forcast of city:', validators=[InputRequired("Please enter the city you want to check weather updates")])
@@ -74,31 +74,41 @@ def getSunriseSunset(lat, lng, date, timezone):
 
 @app.route("/")
 def index():
+    clientIP = request.access_route[0]
+    hostIP = getHostIp()
+
     searchCity = None
     lat = None
     lng = None
     count = None
     exactMatch = True
     timeZone = None
+    
+    count = request.args.get("count") or request.cookies.get("count", 1)
+    form = CreateForm(request.form)
+    form.searchCity(style="width: 900px;", class_="form-group")
+    form.count.default = count
+    form.count.label = "Days" if count > 1 else "Day" 
+    form.count.data = count
+
     if request.method == "GET":
         searchCity = request.args.get("searchCity")
     else:
         searchCity = request.form.get("searchCity")
 
     if not searchCity:
-        searchCity = request.cookies.get("last_save_city")
+        searchCity = request.cookies.get("last_searchCity")
+
+
+    if clientIP in ['127.0.0.1', hostIP] and not searchCity:
+        return render_template("invalid_city.html", form=form, user_input="Home")
 
     if not searchCity:
-            lat, lng, searchCity = getLongLatFromIP(_utils.getIP())
+            lat, lng, searchCity = getLongLatFromIP(clientIP)
 
     exactMatch = bool(request.args.get("exactMatch"))
-    count = request.args.get("count") or request.cookies.get("count", 1)
+    
 
-    form = CreateForm(request.form)
-    form.searchCity(style="width: 900px;", class_="form-group")
-    form.count.default = count
-    form.count.label = "Days" if count > 1 else "Day" 
-    form.count.data = count
 
 
     jsonUrl = _utils.getWeatherURL(searchCity, count=count)
@@ -147,13 +157,25 @@ def index():
         )
 
     if request.args.get("remember"):
-        response.set_cookie("last_save_city", "{},{}".format(city.replace(" ", ""), " " + country),
+        response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
     response.set_cookie(timeZoneCookeName, timeZone,
             expires=_datetime.today() + datetime.timedelta(days=365))
     response.set_cookie("count", str(count),
             expires=_datetime.today() + datetime.timedelta(days=365))
     return response
+
+def getHostIp():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+@app.route("/routerip", methods=["GET"])
+def hostIpAddress():
+    return jsonify({"hostIPAddress" : getHostIp()}), 200
 
 
 @app.route("/realip", methods=["GET"])
