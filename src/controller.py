@@ -3,6 +3,7 @@ from src import app
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import jsonify
 from flask import make_response
 
 from wtforms import Form, StringField, IntegerField, SubmitField
@@ -154,5 +155,14 @@ def index():
             expires=_datetime.today() + datetime.timedelta(days=365))
     return response
 
+
+@app.route("/get_my_ip", methods=["GET"])
+def get_my_ip():
+    return jsonify({'ip_using_remote_addr': request.remote_addr}), 200
+
+
+@app.route("/getmyip", methods=["GET"])
+def getmyip():
+    return jsonify({'ip_using_REMOTE_ADDR_Environ': request.environ['REMOTE_ADDR']}), 200
 
 
