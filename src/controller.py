@@ -5,7 +5,7 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 from flask import make_response
-
+import math
 import os
 import timeUtils as _timeUtils
 import utils as _utils
@@ -139,7 +139,7 @@ def index():
         render_template(
             "index.html", form = form, 
             forcast_list=forcast_list,
-            lat=lat, lng=lng, city=city, key=key,
+            lat=math.ceil(lat*100)/100, lng=math.ceil(lng*100)/100, city=city, key=key,
             country=country, count=count or request.cookies.get("count")
             )
         )

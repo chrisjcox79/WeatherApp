@@ -14,7 +14,7 @@ body {
 
 h2 {
   
-  font-weight: 280;
+  font-weight: 260;
   
   letter-spacing: -1.2px;
 }
@@ -98,10 +98,9 @@ header {
 
 .title {
   float: left;
-  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Helvetica Neue', Arial, Helvetica;
   font-size: 17px;
   letter-spacing: 2.5px;
-  text-transform: uppercase;
 }
 
 .title a, .title a:visited {
