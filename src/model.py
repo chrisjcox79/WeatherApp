@@ -23,3 +23,24 @@ class Messages(db.Model):
         self.done = False
         self.pub_date = _datetime.utcnow()
 
+
+
+class FingerprintVisitor(db.Model):
+    __tablename__ = 'visitorinfo'
+    visitor_id = db.Column("visitor_id", db.Integer, primary_key=True)
+    platform = db.Column(db.String(15))
+    browser = db.Column(db.String(10))
+    cookiekey = db.Column(db.String(10))
+    language = db.Column(db.String(10))
+    version = db.Column(db.String(4))
+    times = db.Column(db.Integer())
+    ip = db.Column(db.String(20))
+
+    def __init__(self, platform, browser, cookiekey, language, version, ip):
+        self.platform = platform
+        self.browser = browser
+        self.cookiekey = cookiekey
+        self.language = language
+        self.version = version
+        self.ip = ip
+

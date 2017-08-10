@@ -68,7 +68,7 @@ def getSunriseSunset(lat, lng, date, timezone):
 @app.route("/")
 def index():
     clientIP = request.access_route[0]
-    hostIP = getHostIp()
+    hostIP = _utils.getHostIp()
 
     searchCity = None
     lat = None
@@ -76,6 +76,8 @@ def index():
     count = None
     exactMatch = True
     timeZone = None
+    # first check if unique visitor id cookie exists else create unique visitor id
+    unique_visitor_id = request.cookies.get("unique_visitor", _utils.id_generator())
     
     count = request.args.get("count") or request.cookies.get("count", 1)
     form = _appforms.getSearchForcastForm(count)
@@ -105,14 +107,21 @@ def index():
 
     if not isinstance(city , str):
         if city != searchCity and exactMatch:
-            return render_template("invalid_city.html", form=form, user_input=searchCity)
+            response = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+            # we are keeping the cookie forever so we can track him
+            # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
+            response.set_cookie("unique_visitor", unique_visitor_id)
+            return response
+
         else:
              city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
 
     country = data["city"]["country"]
 
     if searchCity != city:
-        render_template("invalid_city.html", form=form, user_input=searchCity)
+        resp = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+        resp.set_cookie("unique_visitor", unique_visitor_id)
+        return resp
 
     lat = lat or data["city"]["coord"]["lat"]
     lng = lng or data["city"]["coord"]["lon"]
@@ -135,6 +144,7 @@ def index():
         desc = d.get("weather")[0].get("description")
         sunrise , sunset =  getSunriseSunset(lat, lng, date, timeZone)
         forcast_list.append((date, mini, maxi, humid, desc, sunrise, sunset))
+
     response = make_response(
         render_template(
             "index.html", form = form, 
@@ -143,7 +153,7 @@ def index():
             country=country, count=count or request.cookies.get("count")
             )
         )
-
+    response.set_cookie("unique_visitor", unique_visitor_id)
     if request.args.get("remember"):
         response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
@@ -153,17 +163,10 @@ def index():
             expires=_datetime.today() + datetime.timedelta(days=365))
     return response
 
-def getHostIp():
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
 
 @app.route("/routerip", methods=["GET"])
 def hostIpAddress():
-    return jsonify({"hostIPAddress" : getHostIp()}), 200
+    return jsonify({"hostIPAddress" : _utils.getHostIp()}), 200
 
 @app.route("/providedIps", methods=["GET"])
 def providedIps(): 
@@ -173,6 +176,18 @@ def providedIps():
 def accessRoute():
     return jsonify({"access_route" : request.access_route}), 200
 
+
+@app.route("/useragent", methods=["GET"])
+def userAgent():
+    return jsonify({"user-agent": request.headers.get('User-Agent')}), 200
+
+@app.route("/usragnt", methods=["GET"])
+def reqUsrAgnt(): 
+    return jsonify({"platform" : str(request.user_agent.platform)}), 200
+
+@app.route("/uaatribs", methods=["GET"])
+def uaatribs():
+    return jsonify({"dir(request.user_agent)": dir(request.user_agent)}), 200
 
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
