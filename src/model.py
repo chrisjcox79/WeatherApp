@@ -3,7 +3,8 @@ from src import app
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as _datetime
 
-
+from flask_heroku import Heroku
+heroku = Heroku(app)
 db = SQLAlchemy(app)
 
 class Messages(db.Model):
