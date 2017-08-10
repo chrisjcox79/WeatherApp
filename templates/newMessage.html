@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<br/>
+  <form action="/newmsg" method=post class="form-horizontal">
+<!--     <p align="center"> Write {{ type|default('a') }} Message</p>
+ -->    <div class="control-group">
+        <div class="controls"><br><br>
+          <label for="id" > {{msg}}</label>
+          <input type="text" id="fullName" name="fullName" class="input-xlarge"
+            placeholder="Your full name" value="{{ request.form.fullName }}"
+            required>
+        </div>
+    </div>
+ 
+    <div class="control-group">
+        <div class="controls">
+          <textarea name="message" rows=10 class="input-xlarge" placeholder="write your message" required>{{ request.form.message }}</textarea>
+        </div>
+    </div>
+ 
+    <div class="control-group">
+        <div class="controls">
+          <button type="submit" class="btn btn-success">Submit</button>
+<!--           <a href="{{ url_for('index') }}">Back to list</a> -->
+        </div>
+    </div>
+  </form>
+{% endblock %}

@@ -25,7 +25,3 @@ def getTimeZoneURL(latitude, longitude):
         latitude,
         longitude)
 
-def getIP():
-    """ get ip of visitor.
-    """
-    return urllib2.urlopen("http://ipinfo.io/ip").read().strip()

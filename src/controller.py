@@ -6,13 +6,12 @@ from flask import request
 from flask import jsonify
 from flask import make_response
 
-from wtforms import Form, StringField, IntegerField, SubmitField
-from wtforms.validators import DataRequired, InputRequired
 import os
 import timeUtils as _timeUtils
 import utils as _utils
-
-
+import appforms as _appforms
+from model import Messages
+from model import db as _db
 from dateutil import tz as _tz
 import datetime
 import pytz
@@ -20,11 +19,6 @@ from datetime import datetime as _datetime
 import urllib2
 import json
 from wtforms.fields import Label, Field
-
-class CreateForm(Form):
-    searchCity = StringField('View forcast of city:', validators=[InputRequired("Please enter the city you want to check weather updates")])
-    count = IntegerField("Days")
-    submit = SubmitField("Submit")
 
 
 def getLongLatFromIP(ip):
@@ -84,11 +78,7 @@ def index():
     timeZone = None
     
     count = request.args.get("count") or request.cookies.get("count", 1)
-    form = CreateForm(request.form)
-    form.searchCity(style="width: 900px;", class_="form-group")
-    form.count.default = count
-    form.count.label = "Days" if count > 1 else "Day" 
-    form.count.data = count
+    form = _appforms.getSearchForcastForm(count)
 
     if request.method == "GET":
         searchCity = request.args.get("searchCity")
@@ -182,4 +172,18 @@ def providedIps():
 @app.route("/accessroutes", methods=["GET"])
 def accessRoute():
     return jsonify({"access_route" : request.access_route}), 200
+
+
+@app.route('/newmsg', methods=['GET', 'POST'])
+def newmsg():
+    form = _appforms.getSearchForcastForm(0)
+    if request.method == 'POST':
+        name = request.form['fullName']
+        ip = request.access_route[0]
+        msg = Messages(name, request.form['message'], ip)
+        _db.session.add(msg)
+        _db.session.commit()
+        msg = "Thank you, {}".format(name)
+        return render_template('thankyou.html', form=form, msg=msg)
+    return render_template('newMessage.html', form=form, msg="Write your message")
 
