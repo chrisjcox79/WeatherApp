@@ -34,6 +34,13 @@
      <hr>
 
     <div class="footer navbar-fixed-bottom text-small" align="center">
+      {% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         {{ message }}
+      {% endfor %}
+   {% endif %}
+{% endwith %}
                 <p><a href="https://www.heroku.com/" target="_blank"><small>Hosted on Heroku Cloud Platform<small><br></a></p>     
     </div>
 

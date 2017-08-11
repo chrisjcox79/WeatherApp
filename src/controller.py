@@ -3,6 +3,7 @@ from src import app
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import flash
 from flask import jsonify
 from flask import make_response
 import math
@@ -11,6 +12,7 @@ import timeUtils as _timeUtils
 import utils as _utils
 import appforms as _appforms
 from model import Messages
+from model import FingerprintVisitor
 from model import db as _db
 from dateutil import tz as _tz
 import datetime
@@ -18,13 +20,12 @@ import pytz
 from datetime import datetime as _datetime
 import urllib2
 import json
-from wtforms.fields import Label, Field
+
 
 
 def getLongLatFromIP(ip):
     city = getCityFromMyIp(ip)
     url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
-
     response = urllib2.urlopen(url)
     data = json.load(response)
     if data["status"] == u'OK':
@@ -41,6 +42,38 @@ def getCityFromMyIp(ip):
     geoloc = "http://ip-api.com/json/{}".format(ip)
     data = json.load(urllib2.urlopen(geoloc))
     return str(data["city"])
+
+
+def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
+    """ drops visitor tacking session cookie and return the response object
+
+        Arguments:
+            response(request.make_response): response object
+    """
+    # we are keeping the cookie forever so we can track user
+    # if he re-visit, just overwrite the same cookie with 
+    # its exisitng value retrieved.
+    response.set_cookie("unique_visitor", visitorId)
+    data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
+    tz = "Asia/Kolkata"
+    if data["status"] == "success":
+        tz = data["timezone"]
+
+    dtWithZone = datetime.datetime.now(pytz.timezone(tz))
+    response.set_cookie("{}_lastVisit".format(visitorId), dtWithZone.strftime("%Y-%m-%d %H:%M %z"))
+    fpvModel = FingerprintVisitor(request.user_agent.platform, request.user_agent.browser, dtWithZone, visitorId, request.user_agent.language, request.user_agent.version, visitorIp)
+    existing = fpvModel.query.get(visitorId)
+    if not existing:
+        _db.session.add(fpvModel)
+    else:
+        existing.visitor_time = dtWithZone
+        existing.version = request.user_agent.version
+        existing.ip = visitorIp
+        existing.times = 1 if not existing.times else  existing.times + 1
+
+    _db.session.commit()
+    return response
+
 
 def getSunriseSunset(lat, lng, date, timezone):
     """ provides sunrise and sunset time in 
@@ -78,7 +111,9 @@ def index():
     timeZone = None
     # first check if unique visitor id cookie exists else create unique visitor id
     unique_visitor_id = request.cookies.get("unique_visitor", _utils.id_generator())
-    
+    unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
+    if unique_visitor_lastVisit:
+        flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")[:-1]))
     count = request.args.get("count") or request.cookies.get("count", 1)
     form = _appforms.getSearchForcastForm(count)
 
@@ -91,11 +126,12 @@ def index():
         searchCity = request.cookies.get("last_searchCity")
 
 
-    if clientIP in ['127.0.0.1', hostIP] and not searchCity:
-        return render_template("invalid_city.html", form=form, user_input="Home")
+    if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
+        response = make_response(render_template("invalid_city.html", form=form, user_input="Home"))
+        return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
 
     if not searchCity:
-            lat, lng, searchCity = getLongLatFromIP(clientIP)
+        lat, lng, searchCity = getLongLatFromIP(clientIP)
 
     exactMatch = bool(request.args.get("exactMatch"))
 
@@ -110,8 +146,9 @@ def index():
             response = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
             # we are keeping the cookie forever so we can track him
             # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
-            response.set_cookie("unique_visitor", unique_visitor_id)
-            return response
+            return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
+            # response.set_cookie("unique_visitor", unique_visitor_id)
+            # return response
 
         else:
              city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
@@ -189,13 +226,28 @@ def reqUsrAgnt():
 def uaatribs():
     return jsonify({"dir(request.user_agent)": dir(request.user_agent)}), 200
 
+
+@app.route("/headers", methods=["GET"])
+def toheader():
+    return jsonify({"request.user_agent.to_header": dict(request.headers)}), 200
+
+@app.route("/uastring", methods=["GET"])
+def uastring():
+    return jsonify({"request.user_agent.string": request.user_agent.string}), 200
+
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
     form = _appforms.getSearchForcastForm(0)
     if request.method == 'POST':
         name = request.form['fullName']
-        ip = request.access_route[0]
-        msg = Messages(name, request.form['message'], ip)
+        unique_visitor_id = request.cookies.get("unique_visitor")
+        data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(request.access_route[0]))
+        tz = "Asia/Kolkata"
+        if data["status"] == "success":
+            tz = data["timezone"]
+
+        dtWithZone = datetime.datetime.now(pytz.timezone(tz))
+        msg = Messages(name, request.form['email'], request.form['message'], unique_visitor_id, dtWithZone)
         _db.session.add(msg)
         _db.session.commit()
         msg = "Thank you, {}".format(name)

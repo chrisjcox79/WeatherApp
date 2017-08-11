@@ -9,9 +9,15 @@
           <input type="text" id="fullName" name="fullName" class="input-xlarge"
             placeholder="Your full name" value="{{ request.form.fullName }}"
             required>
+
         </div>
     </div>
- 
+    <div class="control-group">
+      <div data-tip="This is the text of the tooltip2" class="controls">
+         <label for="email" ><small>(optional) to stay connected or view/edit your message.</small></label>
+                <input placeholder="Your email address" type="text" id="email" name="email" class="input-xlarge">
+      </div>
+    </div> 
     <div class="control-group">
         <div class="controls">
           <textarea name="message" rows=10 class="input-xlarge" placeholder="write your message" required>{{ request.form.message }}</textarea>
