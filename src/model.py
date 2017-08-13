@@ -36,7 +36,7 @@ class FingerprintVisitor(db.Model):
     browser = db.Column(db.String(10))
     visitorId = db.Column(db.String(10), primary_key=True)
     language = db.Column(db.String(10))
-    version = db.Column(db.String(4))
+    version = db.Column(db.String(20))
     times = db.Column(types.Integer(), autoincrement=True)
     ip = db.Column(db.String(20))
     visitor_time = db.Column(types.Time(timezone=True))
