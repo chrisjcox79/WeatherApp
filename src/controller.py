@@ -147,9 +147,6 @@ def index():
             # we are keeping the cookie forever so we can track him
             # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
             return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
-            # response.set_cookie("unique_visitor", unique_visitor_id)
-            # return response
-
         else:
              city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
 
@@ -181,13 +178,13 @@ def index():
         desc = d.get("weather")[0].get("description")
         sunrise , sunset =  getSunriseSunset(lat, lng, date, timeZone)
         forcast_list.append((date, mini, maxi, humid, desc, sunrise, sunset))
-
+    # weather app starts index page
     response = make_response(
         render_template(
             "index.html", form = form, 
             forcast_list=forcast_list,
             lat=math.ceil(lat*100)/100, lng=math.ceil(lng*100)/100, city=city, key=key,
-            country=country, count=count or request.cookies.get("count")
+            country=country, title="San Weather App", count=count or request.cookies.get("count")
             )
         )
     response.set_cookie("unique_visitor", unique_visitor_id)
@@ -252,5 +249,5 @@ def newmsg():
         _db.session.commit()
         msg = "Thank you, {}".format(name)
         return render_template('thankyou.html', form=form, msg=msg)
-    return render_template('newMessage.html', form=form, msg="Write your message")
+    return render_template('newMessage.html', form=form, title="Messaging", msg="Write your message")
 
