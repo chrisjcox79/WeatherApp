@@ -127,7 +127,7 @@ def index():
 
 
     if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
-        response = make_response(render_template("invalid_city.html", form=form, user_input="Home"))
+        response = make_response(render_template("invalid_city.html", form=form, title=" | Weather App", user_input="Home"))
         return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
 
     if not searchCity:
@@ -143,7 +143,7 @@ def index():
 
     if not isinstance(city , str):
         if city != searchCity and exactMatch:
-            response = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+            response = make_response(render_template("invalid_city.html", form=form, title=" | Weather App", user_input=searchCity))
             # we are keeping the cookie forever so we can track him
             # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
             return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
@@ -184,7 +184,7 @@ def index():
             "index.html", form = form, 
             forcast_list=forcast_list,
             lat=math.ceil(lat*100)/100, lng=math.ceil(lng*100)/100, city=city, key=key,
-            country=country, title="San Weather App", count=count or request.cookies.get("count")
+            country=country, title=" | Weather App", count=count or request.cookies.get("count")
             )
         )
     response.set_cookie("unique_visitor", unique_visitor_id)
@@ -249,5 +249,5 @@ def newmsg():
         _db.session.commit()
         msg = "Thank you, {}".format(name)
         return render_template('thankyou.html', form=form, msg=msg)
-    return render_template('newMessage.html', form=form, title="Messaging", msg="Write your message")
+    return render_template('newMessage.html', form=form, title=" | Messaging", msg="Write your message")
 
