@@ -4,7 +4,7 @@
     <dl>
         <dd> {{ form.searchCity.label }}  {{ form.searchCity(size=20) }} 
         	for next {{ form.count(size=2, class_='count') }} {{ form.count.label }}
-        	<input type="submit" class="btn-primary btn btn-success" value="Submit" id="calculate" onclick="getWeatherForcaset('{{city}}','{{count}}');" >
+        	<input type="submit" class="btn-primary btn btn-success" value="Submit" id="calculate"  >
         </dd>
         <dd>
             <input type="checkbox" name="exactMatch" checked="checked">Exact Match 
@@ -13,4 +13,6 @@
         </dd>
 
     </dl>
+
+    <!-- onclick="getWeatherForcaset('{{city}}','{{count}}');" -->
  </form>

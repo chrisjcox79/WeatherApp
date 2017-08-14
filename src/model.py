@@ -14,7 +14,7 @@ class Messages(db.Model):
     msgId = db.Column('msg_id', db.Integer, primary_key=True)
     fullName = db.Column(db.String(60))
     message = db.Column(db.String)
-    email = db.Column(db.String)
+    email = db.Column(db.String, unique=True)
     visitorId = db.Column(db.String(10))
     done = db.Column(db.Boolean)
     pub_date = db.Column(types.Time(timezone=True)) 
@@ -59,3 +59,13 @@ class TempTable(db.Model):
     def __init__(self, tsz, moment):
         self.timeStamp = tsz
         self.moment = moment
+
+
+class City(object):
+    def __init__(self, key, name, lat, lng):
+        self.key  = key
+        self.name = name
+        self.lat  = lat
+        self.lng  = lng
+
+

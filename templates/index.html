@@ -32,17 +32,21 @@
 
 		 <div class="section-device">
 		 	<div id="map"></div>
-			<script>
-				var map;
-  				function initMap() {
-    				map = new google.maps.Map(document.getElementById('map'), {
-      				center: {lat: {{lat}}, lng: {{lng}}},
-      				zoom: 8
-    				});
-  					}
-			</script>
-		 	<script src="https://maps.googleapis.com/maps/api/js?key={{key}}&callback=initMap"
-    async defer></script>
+					 	 
+			    <script type="text/javascript">
+					    var map;
+					    function initMap() {
+					        map = new google.maps.Map(document.getElementById('map'), {
+					            center: {lat: {{lat}}, lng: {{lng}}},
+					            zoom: 16
+					          });
+					        console.log("map function");
+					        console.log(map);
+					    }
+				</script>
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{key}}&callback=initMap" async defer></script>
+			
 		<div class="clearfix"></div>
 		</div>
   </main>

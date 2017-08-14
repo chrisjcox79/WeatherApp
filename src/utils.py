@@ -5,14 +5,13 @@ import json
 import urllib2
 import string
 import random
-from flask import jsonify
 
-def getJsonFromURL(url, timeout=15):
+def getJsonFromURL(url, timeout=25):
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
-    except Exception:
+    except Exception, er:
         # raise ValueError("Failed to load URL")
-        return {"status": "fail"}
+        return {"status": "fail", "Description": "this is manually forced due to {}".format(er.message)}
     return json.loads(response)
 
 def getWeatherURL(city, count=2):

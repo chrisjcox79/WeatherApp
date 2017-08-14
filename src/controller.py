@@ -41,8 +41,15 @@ def getCityFromMyIp(ip):
     """
     geoloc = "http://ip-api.com/json/{}".format(ip)
     data = json.load(urllib2.urlopen(geoloc))
-    return str(data["city"])
+    return "Bangalore" if str(data["city"]) == "Bengaluru" else str(data["city"])
 
+
+IGNORE_SET_COOKIE = (
+"localhost", # will not increment counter for me
+"192.168.", #                 -           
+"127.0.0.1", #                -           
+"selflearning", # will never increment counter for visitor surfing same site
+)
 
 def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     """ drops visitor tacking session cookie and return the response object
@@ -50,6 +57,11 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
         Arguments:
             response(request.make_response): response object
     """
+
+    # do not incremoent counter if visior has no left this domain name
+    for ignoreCase in IGNORE_SET_COOKIE:
+        if ignoreCase in request.url_root:
+            return response
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
     # its exisitng value retrieved.
@@ -60,7 +72,6 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
         tz = data["timezone"]
 
     dtWithZone = datetime.datetime.now(pytz.timezone(tz))
-    response.set_cookie("{}_lastVisit".format(visitorId), dtWithZone.strftime("%Y-%m-%d %H:%M %z"))
     fpvModel = FingerprintVisitor(request.user_agent.platform, request.user_agent.browser, dtWithZone, visitorId, request.user_agent.language, request.user_agent.version, visitorIp)
     existing = fpvModel.query.get(visitorId)
     if not existing:
@@ -126,7 +137,8 @@ def index():
         searchCity = request.cookies.get("last_searchCity")
 
 
-    if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
+    # if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
+    if clientIP in ('127.0.0.1', hostIP) and not searchCity:
         response = make_response(render_template("invalid_city.html", form=form, title=" | Weather App", user_input="Home"))
         return __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
 
@@ -139,6 +151,10 @@ def index():
 
     jsonUrl = _utils.getWeatherURL(searchCity, count=count)
     data = _utils.getJsonFromURL(jsonUrl)
+
+    if data.get("status", "pass") == "fail":
+        resp = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+
     city = data["city"]["name"]
 
     if not isinstance(city , str):
@@ -187,7 +203,7 @@ def index():
             country=country, title=" | Weather App", count=count or request.cookies.get("count")
             )
         )
-    response.set_cookie("unique_visitor", unique_visitor_id)
+    # response.set_cookie("unique_visitor", unique_visitor_id)
     if request.args.get("remember"):
         response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
@@ -232,6 +248,10 @@ def toheader():
 def uastring():
     return jsonify({"request.user_agent.string": request.user_agent.string}), 200
 
+@app.route("/requrl", methods=["GET"])
+def requrl():
+    return jsonify({"request.url_root": request.url_root }), 200
+
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
     form = _appforms.getSearchForcastForm(0)
@@ -250,4 +270,13 @@ def newmsg():
         msg = "Thank you, {}".format(name)
         return render_template('thankyou.html', form=form, msg=msg)
     return render_template('newMessage.html', form=form, title=" | Messaging", msg="Write your message")
+
+
+@app.route("/<city_code>")
+def show_city(city_code):
+    city = citys_by_key.get(city_code)
+    if city:
+        return render_template('map.html', city=city)
+    else:
+        abort(404)
 
