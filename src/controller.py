@@ -266,9 +266,9 @@ def newmsg():
         if data["status"] == "success":
             tz = data["timezone"]
 
-        flash("Your IP is {} and you are visiting this site from {} timezone.".format(ip, tz))
+        # flash("Your IP is {} and you are visiting this site from {} timezone.".format(ip, tz))
 
-        dtWithZone = datetime.datetime.now(pytz.timezone(tz))
+        dtWithZone = datetime.datetime.now(pytz.timezone(tz)).strftime("%Y-%m-%d %H:%M %z")
         msg = Messages(name, request.form['email'], request.form['message'], unique_visitor_id, dtWithZone)
         _db.session.add(msg)
         _db.session.commit()

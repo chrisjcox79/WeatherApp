@@ -17,7 +17,7 @@ class Messages(db.Model):
     email = db.Column(db.String, unique=True)
     visitorId = db.Column(db.String(10))
     done = db.Column(db.Boolean)
-    pub_date = db.Column(types.Time(timezone=True)) 
+    pub_date = db.Column(db.String(24)) 
  
     def __init__(self, fullName, email, message, visitorId, submitTime):
         self.fullName = fullName
