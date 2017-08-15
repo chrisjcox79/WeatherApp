@@ -1,38 +1,55 @@
 {% extends "layout.html" %}
 {% block content %}
 <br/>
-  <form action="/newmsg" method=post class="form-horizontal">
-<!--     <p align="center"> Write {{ type|default('a') }} Message</p>
- -->    <div class="control-group">
-        <div class="controls"><br><br>
-          <label for="id" > {{msg}}</label>
-          <input type="text" id="fullName" name="fullName" class="input-xlarge"
-            placeholder="Your full name" value="{{ request.form.fullName }}"
-            required>
+<div  class="form-horizontal">
+<form method="POST" action="{{ url_for('newmsg') }}">
+  <div class="control-group">
+    <div class="controls"><br><br>
+      {{ form.csrf_token }}
+      {{ form.fullName.label }}
+      {{ form.fullName }}
+    </div>
+  </div>
+<ul>
+  {% for error in form.fullName.errors %}
+    <li style="color:red;">{{ error }}</li>
+  {% endfor %}
+</ul>
+  <div class="control-group">
+    <div class="controls">
+      {{ form.email.label }}
+      {{ form.email(cols="35") }}
+    </div>
+  </div>
+{% for error in form.email.errors %}
+<ul>
+  <li style="color=red;">{{ error }}</li>
+  {% endfor %}
+</ul>
+  <div class="control-group">
+    <div class="controls">
+      {{ form.message.label }}
+      {{ form.message(cols="35", rows="8") }}
+    </div>
+  </div>
+  {% for error in form.message.errors %}
+  <ul>
+    <li style="color=red;">{{ error }}</li>
+  {% endfor %}
+</ul>
+  <div class="control-group">
+    <div class="controls">
+{{ form.recaptcha }}
+</div>
+</div>
+  <div class="control-group">
+    <div class="controls">
+      <input type="submit" value="Submit">
+    </div>
+  </div>
 
-        </div>
-    </div>
-    <div class="control-group">
-      <div data-tip="This is the text of the tooltip2" class="controls">
-         <label for="email" ><small>(optional) to stay connected or view/edit your message.</small></label>
-                <input placeholder="Your email address" type="text" id="email" name="email" class="input-xlarge">
-      </div>
-    </div> 
-    <div class="control-group">
-        <div class="controls">
-          <textarea name="message" rows=10 class="input-xlarge" placeholder="write your message" required>{{ request.form.message }}</textarea>
-        </div>
-    </div>
-    <div class="control-group">
-      <div class="controls">
-        
-      </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-          <button align="right" type="submit" class="btn btn-primary btn-success">Submit</button>
-<!--           <a href="{{ url_for('index') }}">Back to list</a> -->
-        </div>
-    </div>
-  </form>
+</form>
+</div>
+
+
 {% endblock %}

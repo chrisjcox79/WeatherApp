@@ -59,13 +59,13 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     """
 
     # do not incremoent counter if visior has no left this domain name
+    response.set_cookie("unique_visitor", visitorId)
     for ignoreCase in IGNORE_SET_COOKIE:
         if ignoreCase in request.url_root:
             return response
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
     # its exisitng value retrieved.
-    response.set_cookie("unique_visitor", visitorId)
     data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
     tz = "Asia/Kolkata"
     if data["status"] == "success":
@@ -203,7 +203,7 @@ def index():
             country=country, title=" | Weather App", count=count or request.cookies.get("count")
             )
         )
-    # response.set_cookie("unique_visitor", unique_visitor_id)
+    response.set_cookie("unique_visitor", unique_visitor_id)
     if request.args.get("remember"):
         response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
@@ -254,8 +254,8 @@ def requrl():
 
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
-    form = _appforms.getSearchForcastForm(0)
-    if request.method == 'POST':
+    form = _appforms.MessagingForm()
+    if form.validate_on_submit():
         name = request.form['fullName']
         unique_visitor_id = request.cookies.get("unique_visitor")
         data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(request.access_route[0]))

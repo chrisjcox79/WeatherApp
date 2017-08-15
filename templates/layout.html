@@ -23,9 +23,13 @@
           </div>
       </div>
     </div>
-    <header>
+    <header class="divbgimg">
       {% if not msg %}
        {% include 'form.html' %}
+      {% else %} 
+      <br><br><br><br>
+      <h3 >&nbsp; &nbsp; &nbsp; &nbsp; 
+        &nbsp; Have Your Say!</h3>
       {% endif %}
     </header>
     
@@ -33,7 +37,7 @@
     {% endblock %}
      <hr>
 
-    <div class="footer navbar-fixed-bottom text-small" align="center">
+    <div class="footer text-small" align="center">
       {% with messages = get_flashed_messages() %}
    {% if messages %}
       {% for message in messages %}
@@ -41,7 +45,7 @@
       {% endfor %}
    {% endif %}
 {% endwith %}
-                <p><a href="https://www.heroku.com/" target="_blank"><small>Hosted on Heroku Cloud Platform<small><br></a></p>     
+                <p><small>Hosted on  <a href="https://www.heroku.com/" target="_blank">Heroku Cloud Platform</a><small><br></p>     
     </div>
 
   </body>
