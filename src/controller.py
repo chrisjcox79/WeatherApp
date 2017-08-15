@@ -66,6 +66,7 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
     # its exisitng value retrieved.
+    response.set_cookie("{}_lastVisit".format(visitorId))
     data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
     tz = "Asia/Kolkata"
     if data["status"] == "success":
@@ -257,11 +258,15 @@ def newmsg():
     form = _appforms.MessagingForm()
     if form.validate_on_submit():
         name = request.form['fullName']
+        ip = request.access_route[0]
         unique_visitor_id = request.cookies.get("unique_visitor")
-        data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(request.access_route[0]))
+        # lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id), response.set_cookie("{}_lastVisit".format(unique_visitor_id)))
+        data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(ip))
         tz = "Asia/Kolkata"
         if data["status"] == "success":
             tz = data["timezone"]
+
+        flash("Your IP is {} and you are visiting this site from {} timezone.".format(ip, tz))
 
         dtWithZone = datetime.datetime.now(pytz.timezone(tz))
         msg = Messages(name, request.form['email'], request.form['message'], unique_visitor_id, dtWithZone)
