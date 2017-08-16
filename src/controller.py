@@ -25,14 +25,15 @@ import json
 
 def getLongLatFromIP(ip):
     city = getCityFromMyIp(ip)
-    url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
-    response = urllib2.urlopen(url)
-    data = json.load(response)
-    if data["status"] == u'OK':
-        lat = data["results"][-1]["geometry"]["bounds"]["northeast"]["lat"]
-        lng = data["results"][-1]["geometry"]["bounds"]["northeast"]["lng"]
-        city = data["results"][-1][u"address_components"][0]["long_name"]
-        return lat, lng, city
+    if city:
+        url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
+        response = urllib2.urlopen(url)
+        data = json.load(response)
+        if data["status"] == u'OK':
+            lat = data["results"][-1]["geometry"]["bounds"]["northeast"]["lat"]
+            lng = data["results"][-1]["geometry"]["bounds"]["northeast"]["lng"]
+            city = data["results"][-1][u"address_components"][0]["long_name"]
+            return lat, lng, city
     return (None, None, None)
 
 
@@ -41,7 +42,7 @@ def getCityFromMyIp(ip):
     """
     geoloc = "http://ip-api.com/json/{}".format(ip)
     data = json.load(urllib2.urlopen(geoloc))
-    return "Bangalore" if str(data["city"]) == "Bengaluru" else str(data["city"])
+    return "Bangalore" if data.get("city") == "Bengaluru" else data.get("city")
 
 
 IGNORE_SET_COOKIE = (
@@ -145,6 +146,9 @@ def index():
 
     if not searchCity:
         lat, lng, searchCity = getLongLatFromIP(clientIP)
+
+    if not searchCity:
+        lat, lng, searchCity = 31.03, 75.79, "Phillaur"
 
     exactMatch = bool(request.args.get("exactMatch"))
 
