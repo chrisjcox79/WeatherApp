@@ -14,6 +14,7 @@ import appforms as _appforms
 from model import Messages
 from model import FingerprintVisitor
 from model import db as _db
+from model import insertIntoTable
 from dateutil import tz as _tz
 import datetime
 import pytz
@@ -21,6 +22,9 @@ from datetime import datetime as _datetime
 import urllib2
 import json
 
+from sqlalchemy import create_engine
+
+db_uri = os.getenv('HEROKU_POSTGRESQL_GOLD_URL')
 
 
 def getLongLatFromIP(ip):
@@ -260,22 +264,26 @@ def requrl():
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
     form = _appforms.MessagingForm()
-    if form.validate_on_submit():
-        name = request.form['fullName']
+    # if form.validate_on_submit():
+    if request.method == "POST":
         ip = request.access_route[0]
-        unique_visitor_id = request.cookies.get("unique_visitor")
-        # lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id), response.set_cookie("{}_lastVisit".format(unique_visitor_id)))
         data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(ip))
         tz = "Asia/Kolkata"
         if data["status"] == "success":
             tz = data["timezone"]
 
-        # flash("Your IP is {} and you are visiting this site from {} timezone.".format(ip, tz))
+        dtWithZone = datetime.datetime.now(pytz.timezone(tz))
+        name = request.form.get('fullName', "")
+        columValues = {
+        'pub_date' : dtWithZone,  
+        'fullName' : name,
+        'visitorId': request.cookies.get("unique_visitor", ""),
+        'message' : request.form.get('message', ""),
+        'email' : request.form.get('email', "")
+        }
+        
+        insertIntoTable(dtWithZone, 'messages', columValues)
 
-        dtWithZone = datetime.datetime.now(pytz.timezone(tz)).strftime("%Y-%m-%d %H:%M %z")
-        msg = Messages(name, request.form['email'], request.form['message'], unique_visitor_id, dtWithZone)
-        _db.session.add(msg)
-        _db.session.commit()
         msg = "Thank you, {}".format(name)
         return render_template('thankyou.html', form=form, msg=msg)
     return render_template('newMessage.html', form=form, title=" | Messaging", msg="Write your message")

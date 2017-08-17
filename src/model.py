@@ -4,10 +4,23 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as _datetime
 from sqlalchemy import types
 from sqlalchemy import schema
-
+from sqlalchemy import MetaData
 from flask_heroku import Heroku
+from sqlalchemy import create_engine
+
 heroku = Heroku(app)
 db = SQLAlchemy(app)
+
+
+def insertIntoTable(dtWithZone, tableName, columValues):
+    db_uri = "postgresql://localhost/messages"
+    engine = create_engine(db_uri, connect_args={"options": "-c timezone={}".format(dtWithZone.timetz().tzinfo.zone)})
+    meta = MetaData(engine, reflect=True)
+    table = meta.tables[tableName]
+    ins = table.insert().values(**columValues)
+    conn = engine.connect()
+    conn.execute(ins)
+
 
 class Messages(db.Model):
     __tablename__ = 'messages'
@@ -17,7 +30,7 @@ class Messages(db.Model):
     email = db.Column(db.String, unique=True)
     visitorId = db.Column(db.String(10))
     done = db.Column(db.Boolean)
-    pub_date = db.Column(db.String(24)) 
+    pub_date = db.Column(types.Time(timezone=True)) 
  
     def __init__(self, fullName, email, message, visitorId, submitTime):
         self.fullName = fullName
