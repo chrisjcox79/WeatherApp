@@ -7,6 +7,7 @@ from sqlalchemy import schema
 from sqlalchemy import MetaData
 from flask_heroku import Heroku
 from sqlalchemy import create_engine
+from sqlalchemy import DateTime
 
 heroku = Heroku(app)
 db = SQLAlchemy(app)
@@ -30,7 +31,7 @@ class Messages(db.Model):
     email = db.Column(db.String, unique=True)
     visitorId = db.Column(db.String(10))
     done = db.Column(db.Boolean)
-    pub_date = db.Column(types.Time(timezone=True)) 
+    pub_date = db.Column(DateTime(timezone=True)) 
  
     def __init__(self, fullName, email, message, visitorId, submitTime):
         self.fullName = fullName
