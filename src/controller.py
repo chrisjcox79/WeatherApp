@@ -45,13 +45,6 @@ def getCityFromMyIp(ip):
     return "Bangalore" if data.get("city") == "Bengaluru" else data.get("city")
 
 
-IGNORE_SET_COOKIE = (
-"localhost", # will not increment counter for me
-"192.168.", #                 -           
-"127.0.0.1", #                -           
-"selflearning", # will never increment counter for visitor surfing same site
-)
-
 def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     """ drops visitor tacking session cookie and return the response object
 
@@ -61,9 +54,7 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
 
     # do not incremoent counter if visior has no left this domain name
     response.set_cookie("unique_visitor", visitorId)
-    for ignoreCase in IGNORE_SET_COOKIE:
-        if ignoreCase in request.url_root:
-            return response
+
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
     # its exisitng value retrieved.
@@ -76,15 +67,25 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     dtWithZone = datetime.datetime.now(pytz.timezone(tz))
     fpvModel = FingerprintVisitor(request.user_agent.platform, request.user_agent.browser, dtWithZone, visitorId, request.user_agent.language, request.user_agent.version, visitorIp)
     existing = fpvModel.query.get(visitorId)
-    if not existing:
-        _db.session.add(fpvModel)
-    else:
+
+    if exisitng:
         existing.visitor_time = dtWithZone
         existing.version = request.user_agent.version
         existing.ip = visitorIp
         existing.times = 1 if not existing.times else  existing.times + 1
+    else:
+        columnValues = {
+            "platform" : request.user_agent.platform,
+            "browser" : request.user_agent.browser,
+            "visitorId" : visitorId,
+            "language" : request.user_agent.language,
+            "version" : request.user_agent.version,
+            "times" : 1,
+            "ip" : visitorIp,
+            "visitor_time" : dtWithZone
+        }
+        insertIntoTable(dtWithZone, 'visitorinfo', columnValues)
 
-    _db.session.commit()
     return response
 
 
@@ -208,7 +209,9 @@ def index():
             country=country, title=" | Weather App", count=count or request.cookies.get("count")
             )
         )
-    response.set_cookie("unique_visitor", unique_visitor_id)
+    print "Oye hoye"
+    # response.set_cookie("unique_visitor", unique_visitor_id)
+    response = __dropVisitorTrackingCookie(response, unique_visitor_id, clientIP)
     if request.args.get("remember"):
         response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))

@@ -14,13 +14,14 @@ db = SQLAlchemy(app)
 
 
 def insertIntoTable(dtWithZone, tableName, columValues):
+    """ Insert into table with provided date time and time zone information.
+    """
     db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
     engine = create_engine(db_uri, connect_args={"options": "-c timezone={}".format(dtWithZone.timetz().tzinfo.zone)})
     meta = MetaData(engine, reflect=True)
     table = meta.tables[tableName]
     ins = table.insert().values(**columValues)
     conn = engine.connect()
-    conn.execute(ins)
     conn.close()
 
 
