@@ -14,7 +14,7 @@ db = SQLAlchemy(app)
 
 
 def insertIntoTable(dtWithZone, tableName, columValues):
-    db_uri = "postgresql://localhost/messages"
+    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
     engine = create_engine(db_uri, connect_args={"options": "-c timezone={}".format(dtWithZone.timetz().tzinfo.zone)})
     meta = MetaData(engine, reflect=True)
     table = meta.tables[tableName]
@@ -53,7 +53,7 @@ class FingerprintVisitor(db.Model):
     version = db.Column(db.String(20))
     times = db.Column(types.Integer(), autoincrement=True)
     ip = db.Column(db.String(20))
-    visitor_time = db.Column(types.Time(timezone=True))
+    visitor_time = db.Column(DateTime(timezone=True))
 
     def __init__(self, platform, browser, visitor_time, visitorId, language, version, ip):
         self.platform = platform

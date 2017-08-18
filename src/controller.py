@@ -15,16 +15,12 @@ from model import Messages
 from model import FingerprintVisitor
 from model import db as _db
 from model import insertIntoTable
-from dateutil import tz as _tz
+
 import datetime
 import pytz
 from datetime import datetime as _datetime
 import urllib2
 import json
-
-from sqlalchemy import create_engine
-
-db_uri = os.getenv('HEROKU_POSTGRESQL_GOLD_URL')
 
 
 def getLongLatFromIP(ip):
