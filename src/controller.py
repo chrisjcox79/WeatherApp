@@ -57,7 +57,7 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
 
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
-    # its exisitng value retrieved.
+    # its existing value retrieved.
     response.set_cookie("{}_lastVisit".format(visitorId))
     data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
     tz = "Asia/Kolkata"
@@ -68,7 +68,7 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     fpvModel = FingerprintVisitor(request.user_agent.platform, request.user_agent.browser, dtWithZone, visitorId, request.user_agent.language, request.user_agent.version, visitorIp)
     existing = fpvModel.query.get(visitorId)
 
-    if exisitng:
+    if existing:
         existing.visitor_time = dtWithZone
         existing.version = request.user_agent.version
         existing.ip = visitorIp
