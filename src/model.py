@@ -21,6 +21,7 @@ def insertIntoTable(dtWithZone, tableName, columValues):
     ins = table.insert().values(**columValues)
     conn = engine.connect()
     conn.execute(ins)
+    conn.close()
 
 
 class Messages(db.Model):
