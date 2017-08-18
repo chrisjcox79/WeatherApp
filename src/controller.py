@@ -159,8 +159,9 @@ def index():
     jsonUrl = _utils.getWeatherURL(searchCity, count=count)
     data = _utils.getJsonFromURL(jsonUrl)
 
-    if data.get("status", "pass") == "fail":
+    if data.get("status", "pass") == "fail" or not data.get("city"):
         resp = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+        return __dropVisitorTrackingCookie(resp, unique_visitor_id, clientIP)
 
     city = data["city"]["name"]
 
