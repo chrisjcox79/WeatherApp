@@ -67,7 +67,6 @@ def __dropVisitorTrackingCookie(response, visitorId, visitorIp):
     dtWithZone = datetime.datetime.now(pytz.timezone(tz))
     fpvModel = FingerprintVisitor(request.user_agent.platform, request.user_agent.browser, dtWithZone, visitorId, request.user_agent.language, request.user_agent.version, visitorIp)
     existing = fpvModel.query.get(visitorId)
-    print "Exisiting: {}".format(existing)
 
     if existing:
         existing.visitor_time = dtWithZone

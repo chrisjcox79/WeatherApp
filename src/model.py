@@ -22,15 +22,16 @@ def insertIntoTable(dtWithZone, tableName, columValues):
     table = meta.tables[tableName]
     ins = table.insert().values(**columValues)
     conn = engine.connect()
+    conn.execute(ins)
     conn.close()
 
 
 class Messages(db.Model):
     __tablename__ = 'messages'
-    msgId = db.Column('msg_id', db.Integer, primary_key=True)
+    msgId = db.Column('msg_id', db.Integer, autoincrement=True, primary_key=True)
     fullName = db.Column(db.String(60))
     message = db.Column(db.String)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String)
     visitorId = db.Column(db.String(10))
     done = db.Column(db.Boolean)
     pub_date = db.Column(DateTime(timezone=True)) 
