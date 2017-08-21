@@ -15,6 +15,44 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
+<!-- convert long lat to address -->
+<!-- http://maps.googleapis.com/maps/api/geocode/json?latlng=13.0149847,77.6789976-->
+<!-- https://www.w3schools.com/html/html5_geolocation.asp-->
+
+<script>
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";";
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+}
+
+function showPosition(position) {
+    var x = document.referrer;
+	$.getJSON($SCRIPT_ROOT + '/regVisitor', {
+        lat: position.coords.latitude,
+        long: position.coords.longitude,
+        language : window.navigator.userLanguage || window.navigator.language,
+        referrer:  x
+      }, function(data) {
+        $("#result").text(data.result);
+        console.log(data);
+      });
+	setCookie("cl_lat", position.coords.latitude, 365)
+    setCookie("cl_lng", position.coords.longitude, 365)
+    return false;
+}
+</script>
+
 <style>
 .divbgimg {
 	height: 200px;

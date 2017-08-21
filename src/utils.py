@@ -14,14 +14,19 @@ def getJsonFromURL(url, timeout=25):
         return {"status": "fail", "Description": "this is manually forced due to {}".format(er.message)}
     return json.loads(response)
 
+
+def getVisitorAddressFromLatLong(lat, lng):
+    """ provides address based on latitude and longitude
+    """
+    return getJsonFromURL("http://maps.googleapis.com/maps/api/geocode/json?latlng={},{}".format(lat, lng))
+
 def getWeatherURL(city, count=2):
 	return "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
 
-def getLongLatURL():
-	pass
 
 def getSunriseSunsetURL(lat, lng, date):
 	return "https://api.sunrise-sunset.org/json?lat={}&lng={}&date={}".format(lat, lng, date)
+
 
 def getTimeZoneURL(latitude, longitude):
 	return "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(
@@ -30,6 +35,7 @@ def getTimeZoneURL(latitude, longitude):
 
 def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
 
 def getHostIp():
     import socket
