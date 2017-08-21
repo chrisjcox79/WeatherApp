@@ -47,8 +47,9 @@ def getCityFromMyIp(ip):
 
 @app.route("/regVisitor", methods=["GET"])
 def registerVisitor():
-    # do not increment if referrer is from same domain
-    if request.url_root not in unquote(request.args.get("referrer")):
+    referrer = unquote(request.args.get("referrer"))
+    # do not increment if referrer is from same domain sub url
+    if request.url_root not in referrer and "newmsg" not in referrer:
         try:
             visitorInfo = collectVisitorInfo()
             updateOrInsertToTable(request.user_agent, visitorInfo)
