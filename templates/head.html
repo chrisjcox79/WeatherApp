@@ -52,7 +52,7 @@ function dir(object) {
 function getLocation() {
     $.getJSON($SCRIPT_ROOT + '/regVisitor', {
         language : window.navigator.userLanguage || window.navigator.language,
-        referrer:  document.referrer
+        referrer:  document.referrer || "/"
       }, function(data) {
         if (data.status == "success"){
             if (navigator.geolocation) {
@@ -73,7 +73,6 @@ function getLocation() {
 }
 
 function showPosition(position) {
-    var x = document.referrer;
 
 	$.getJSON($SCRIPT_ROOT + '/regVisitor', {
         lat: position.coords.latitude,

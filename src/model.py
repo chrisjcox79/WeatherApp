@@ -127,7 +127,7 @@ class Visitor(db.Model):
     cl_lat = db.Column(types.Float(25), nullable=True)
     cl_lng = db.Column(types.Float(25), nullable=True)
     count = db.Column(Integer)
-    referrer = db.Column(db.String(150))
+    referrer = db.Column(db.String(150), nullable=True)
     ip = db.Column(db.String(20))
     coord_errorcode = db.Column(db.Integer, nullable=True)
     visitdatetime = db.Column(DateTime(timezone=True))
