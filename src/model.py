@@ -31,34 +31,37 @@ def updateOrInsertToTable(user_agent, visitorInfo):
     visitorIp = visitorInfo["clientIP"]
     language = visitorInfo["language"]
     referrer = visitorInfo["referrer"]
-    cl_lat = visitorInfo.get("cl_lat", 0)
-    cl_lng = visitorInfo.get("cl_lng", 0)
+    coord_errorcode = visitorInfo.get("coord_errorcode", None)
+    cl_lat = visitorInfo.get("cl_lat", 0.0)
+    cl_lng = visitorInfo.get("cl_lng", 0.0)
     data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
-    tz = "Asia/Kolkata"
+    tz = "UTC"
     if data["status"] == "success":
         tz = data["timezone"]
-
     dtWithZone = _datetime.now(pytz.timezone(tz))
-    fpvModel = FingerprintVisitor(
+    visitorModel = Visitor(
         user_agent.platform,
         user_agent.browser, 
         dtWithZone, visitorId, 
         cl_lat, cl_lng,
         language, referrer,
         user_agent.version, 
-        visitorIp
+        visitorIp,
+        tz
     )
-    existing = fpvModel.query.get(visitorId)
+    existing = visitorModel.query.get(visitorId)
 
     if existing:
         existing.version = user_agent.version
-        existing.cl_lat = float(cl_lat) if cl_lat else ""
-        existing.cl_lng = float(cl_lng) if cl_lng else ""
-        existing.count = existing.count + 1
+        existing.cl_lat = float(cl_lat)
+        existing.cl_lng = float(cl_lng)
         existing.ip = visitorIp
         existing.language = language
         existing.referrer = referrer
-        existing.visitor_time = dtWithZone
+        if referrer == "":
+            existing.count = existing.count + 1
+        existing.coord_errorcode = coord_errorcode
+        existing.visitdatetime = dtWithZone
         db.session.commit()
     else:
         columnValues = {
@@ -71,24 +74,13 @@ def updateOrInsertToTable(user_agent, visitorInfo):
             "referrer" : referrer,
             "version" : user_agent.version,
             "count" : 1,
+            "coord_errorcode": coord_errorcode,
             "ip" : visitorIp,
-            "visitor_time" : dtWithZone
+            "visitdatetime" : dtWithZone,
+            "timezone": tz
         }
-        insertIntoTable(dtWithZone, 'visitorinfo', columnValues)
+        insertIntoTable(dtWithZone, 'visitor', columnValues)
 
-
-def getVisitorIdFromTable(tableName, visitorIdfound, dtWithZone):
-    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
-    engine = create_engine(db_uri, connect_args={"options": "-c timezone={}".format(dtWithZone.timetz().tzinfo.zone)})
-    meta = MetaData(engine, reflect=True)
-    table = meta.tables[tableName]
-
-    select_st = table.select().where(
-        table.c.visitorId == visitorIdfound)
-    conn = engine.connect()
-    res = conn.execute(select_st)
-    conn.close()
-    return [_row for _row in res]
 
 
 def insertIntoTable(dtWithZone, tableName, columValues):
@@ -106,12 +98,13 @@ def insertIntoTable(dtWithZone, tableName, columValues):
 
 class Messages(db.Model):
     __tablename__ = 'messages'
+
     msgId = db.Column('msg_id', db.Integer, autoincrement=True, primary_key=True)
     fullName = db.Column(db.String(60))
     message = db.Column(db.String)
     email = db.Column(db.String)
-    visitorId = db.Column(db.String(10))
-    done = db.Column(db.Boolean)
+    visitorId = db.Column(db.String(10), db.ForeignKey("visitor.visitorId"))
+    # ip = db.relationship('visitor', backref='info', lazy='dynamic')
     pub_date = db.Column(DateTime(timezone=True)) 
  
     def __init__(self, fullName, email, message, visitorId, submitTime):
@@ -119,30 +112,31 @@ class Messages(db.Model):
         self.email = email
         self.message = message
         self.visitorId = visitorId
-        self.done = False
         self.pub_date = submitTime
 
 
 
-class FingerprintVisitor(db.Model):
-    __tablename__ = 'visitorinfo'
+class Visitor(db.Model):
+    __tablename__ = 'visitor'
 
+    visitorId = db.Column(db.String(10), primary_key=True)
     platform = db.Column(db.String(15))
     browser = db.Column(db.String(10))
-    visitorId = db.Column(db.String(10), primary_key=True)
     language = db.Column(db.String(10))
     version = db.Column(db.String(20))
-    cl_lat = db.Column(types.Float(25))
-    cl_lng = db.Column(types.Float(25))
+    cl_lat = db.Column(types.Float(25), nullable=True)
+    cl_lng = db.Column(types.Float(25), nullable=True)
     count = db.Column(Integer)
     referrer = db.Column(db.String(150))
-    # count = db.Column(Integer, USER_ID_SEQ, server_default=USER_ID_SEQ.next_value())
     ip = db.Column(db.String(20))
-    visitor_time = db.Column(DateTime(timezone=True))
+    coord_errorcode = db.Column(db.Integer, nullable=True)
+    visitdatetime = db.Column(DateTime(timezone=True))
+    timezone = db.Column(db.String(24))
 
-    def __init__(self, platform, browser, visitor_time, visitorId, lat, lng, language, referrer, version, ip):
+    def __init__(self, platform, browser, visitor_time, timezone, visitorId, lat, lng, language, referrer, version, ip):
         self.platform = platform
         self.browser = browser
+        self.timezone = timezone
         self.visitor_time = visitor_time
         self.visitorId = visitorId
         self.cl_lat = lat

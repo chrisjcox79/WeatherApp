@@ -21,6 +21,18 @@
 
 <script>
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+function showError(error) {
+
+        $.getJSON($SCRIPT_ROOT + '/regVisitor', {
+        coord_errorcode: error.code
+      }, function(data) {
+        // do something from data recived back.
+      });
+
+    return false;
+}
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -28,24 +40,46 @@ function setCookie(cname, cvalue, exdays) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";";
 }
 
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-    } else {
-        console.log("Geolocation is not supported by this browser.");
+function dir(object) {
+    stuff = [];
+    for (s in object) {
+        stuff.push(s);
     }
+    stuff.sort();
+    return stuff;
+}
+
+function getLocation() {
+    $.getJSON($SCRIPT_ROOT + '/regVisitor', {
+        language : window.navigator.userLanguage || window.navigator.language,
+        referrer:  document.referrer
+      }, function(data) {
+        if (data.status == "success"){
+            if (navigator.geolocation) {
+                try {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                }
+                catch(err) {
+                    console.log(err);
+                }
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+    }
+      });
+    return false;
+
+
 }
 
 function showPosition(position) {
     var x = document.referrer;
+
 	$.getJSON($SCRIPT_ROOT + '/regVisitor', {
         lat: position.coords.latitude,
         long: position.coords.longitude,
-        language : window.navigator.userLanguage || window.navigator.language,
-        referrer:  x
       }, function(data) {
-        $("#result").text(data.result);
-        console.log(data);
+        console.log("ok it was " + data.status);
       });
 	setCookie("cl_lat", position.coords.latitude, 365)
     setCookie("cl_lng", position.coords.longitude, 365)
@@ -53,13 +87,6 @@ function showPosition(position) {
 }
 </script>
 
-<style>
-.divbgimg {
-	height: 200px;
-	background-image: url("{{url_for('static', filename='img/divbg.jpg')}}");
-}
-
-</style>
 <!-- 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script> -->
  

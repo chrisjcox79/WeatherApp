@@ -12,10 +12,9 @@ from urllib import unquote
 import timeUtils as _timeUtils
 import utils as _utils
 import appforms as _appforms
-from model import Messages
-from model import FingerprintVisitor
+
 from model import db as _db
-from model import insertIntoTable, getVisitorIdFromTable, updateOrInsertToTable
+from model import insertIntoTable, updateOrInsertToTable
 
 import datetime
 import pytz
@@ -47,26 +46,29 @@ def getCityFromMyIp(ip):
 
 @app.route("/regVisitor", methods=["GET"])
 def registerVisitor():
-    referrer = unquote(request.args.get("referrer"))
-    # do not increment if referrer is from same domain sub url
-    if request.url_root not in referrer and "newmsg" not in referrer:
-        try:
-            visitorInfo = collectVisitorInfo()
-            updateOrInsertToTable(request.user_agent, visitorInfo)
-            return jsonify({"status" : "success"}), 200
-        except Exception:
-            return jsonify({"status": "fail"})
-    else:
-        return jsonify({"status" : "internal"}), 200
 
-def collectVisitorInfo(uniqVistorId=None):
+    visitorInfo = collectVisitorInfo()
+    for endswith in ("newmsg", "regVisitor", ):
+        if visitorInfo["referrer"].endswith(endswith):
+            return jsonify({"status": "coming from newmsg"})
+    try:
+        # if not request.script_root in ('/newmsg',):
+        updateOrInsertToTable(request.user_agent, visitorInfo)
+        return jsonify({"status" : "success"}), 200
+    except Exception, er:
+        return jsonify({"status": "fail:{}".format(er.message)})
+
+
+def collectVisitorInfo():
     visitorInfo = {}
+    url = request.args.get("referrer")
     visitorInfo["clientIP"] = request.access_route[0]
-    visitorInfo["referrer"] = unquote(request.args.get("referrer"))
-    visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat", 0))
-    visitorInfo["cl_lng"] = request.args.get("long", request.cookies.get("cl_lng", 0))
-    visitorInfo["language"] = request.args.get("language")
-    visitorInfo["visitorId"] = uniqVistorId or request.cookies.get("unique_visitor")
+    visitorInfo["coord_errorcode"] = request.args.get("coord_errorcode")
+    visitorInfo["referrer"] = unquote(url) if url else ""
+    visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat", 0.0))
+    visitorInfo["cl_lng"] = request.args.get("long", request.cookies.get("cl_lng", 0.0))
+    visitorInfo["language"] = request.args.get("language", "missing")
+    visitorInfo["visitorId"] = request.cookies.get("unique_visitor")
     return visitorInfo
 
 def __dropVisitorTrackingCookie(response, visitorInfo):
@@ -135,6 +137,7 @@ def index():
 
     # first check if unique visitor id cookie exists else create unique visitor id
     unique_visitor_id = request.cookies.get("unique_visitor", _utils.id_generator())
+    # TODO : 1 punch into visitor table visitor id and ip and count.(pending lat, long)
     visitorInfo["visitorId"] = unique_visitor_id
     unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
 
