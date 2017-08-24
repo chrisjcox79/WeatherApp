@@ -137,15 +137,17 @@ def index():
 
     # first check if unique visitor id cookie exists else create unique visitor id
     unique_visitor_id = request.cookies.get("unique_visitor", _utils.id_generator())
-    # TODO : 1 punch into visitor table visitor id and ip and count.(pending lat, long)
     visitorInfo["visitorId"] = unique_visitor_id
+
+    # always read latest date time visit from db and set cookie
     unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
 
     visitorInfo["clientIP"] = clientIP
 
     if unique_visitor_lastVisit:
         flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")[:-1]))
-
+    else:
+        ## TODO read from db and set cookie
     count = request.args.get("count") or request.cookies.get("count", 1)
     form = _appforms.getSearchForcastForm(count)
 
@@ -159,7 +161,17 @@ def index():
 
     visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat"))
     visitorInfo["cl_lng"] = request.args.get("lng", request.cookies.get("cl_lng"))
-    # if all(visitorInfo["cl_lat"], visitorInfo["cl_lng"]):
+
+    if not searchCity:
+        ## lets get from googleapis geocode
+        lat = float(request.cookies.get("cl_lat", 31.03))
+        lng = float(request.cookies.get("cl_lng", 75.79))
+        searchCity , country = _utils.getplace(lat, lng)
+        searchCity = _utils.cityNameMap.get(searchCity, searchCity)
+        searchCity = searchCity if searchCity else "Phillaur" # my hometown
+
+    if not searchCity:
+        lat, lng, searchCity = getLongLatFromIP(clientIP)
 
     # if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
     if clientIP in ('127.0.0.1', hostIP) and not searchCity:
@@ -168,11 +180,6 @@ def index():
         # response.set_cookie("client_lng", cl_lng)
         return __dropVisitorTrackingCookie(response, visitorInfo)
 
-    if not searchCity:
-        lat, lng, searchCity = getLongLatFromIP(clientIP)
-
-    if not searchCity:
-        lat, lng, searchCity = 31.03, 75.79, "Phillaur"
 
     exactMatch = bool(request.args.get("exactMatch"))
 

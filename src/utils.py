@@ -6,6 +6,28 @@ import urllib2
 import string
 import random
 
+
+cityNameMap = {
+    "Bengaluru" : "Bangalore",
+
+}
+
+def getplace(lat, lon):
+    url = "http://maps.googleapis.com/maps/api/geocode/json?"
+    url += "latlng={},{}&sensor=false".format(lat, lon)
+    v = urllib2.urlopen(url).read()
+    j = json.loads(v)
+    components = j['results'][0]['address_components']
+    country = town = None
+    for c in components:
+        if "country" in c['types']:
+            country = c['long_name']
+        if "political" in c['types'] and "locality" in c['types']:
+            town = c['long_name']
+    return town, country
+
+
+
 def getJsonFromURL(url, timeout=25):
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
