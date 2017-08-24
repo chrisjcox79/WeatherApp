@@ -15,6 +15,14 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
+<style>
+.divbgimg {
+    height: 200px;
+    background-image: url("{{url_for('static', filename='img/divbg.jpg')}}");
+}
+
+</style>
+
 <!-- convert long lat to address -->
 <!-- http://maps.googleapis.com/maps/api/geocode/json?latlng=13.0149847,77.6789976-->
 <!-- https://www.w3schools.com/html/html5_geolocation.asp-->

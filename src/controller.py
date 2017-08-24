@@ -148,6 +148,7 @@ def index():
         flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")[:-1]))
     else:
         ## TODO read from db and set cookie
+        pass
     count = request.args.get("count") or request.cookies.get("count", 1)
     form = _appforms.getSearchForcastForm(count)
 
