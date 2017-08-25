@@ -45,11 +45,17 @@ def getCityFromMyIp(ip):
     return _utils.cityNameMap(data.get("city"), data.get("city"))
 
 
-@app.route("/regVisitor", methods=["POST", "GET"])
+@app.route("/regVisitor", methods=["POST"])
 def registerVisitor():
-    visitorInfo = collectVisitorInfo()
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "No data to process."}), 201
+
+    visitorInfo = collectVisitorInfo(data)
+
     if bool(visitorInfo.get("increment", False)):
         if str(visitorInfo["referrer"]).find("searchCity") != -1 or visitorInfo["referrer"].endswith("newmsg"):
+            print str(visitorInfo["referrer"]).find("searchCity") 
             return jsonify({"status": "coming from newmsg or SearchCity found"}), 200
         try:
             updateOrInsertToTable(request.user_agent, visitorInfo)
@@ -58,16 +64,16 @@ def registerVisitor():
             return jsonify({"status": "fail:{}".format(er.message)})
     return jsonify({"status": "fail"}), 200
 
-def collectVisitorInfo():
+def collectVisitorInfo(data):
     visitorInfo = {}
-    url = request.form.get("referrer")
+    url = data.get("referrer") # coming from javascript
     visitorInfo["clientIP"] = request.access_route[0]
-    visitorInfo["increment"] = request.form.get("increment")
-    visitorInfo["coord_errorcode"] = request.form.get("coord_errorcode")
+    visitorInfo["increment"] = data.get("increment")
+    visitorInfo["coord_errorcode"] = data.get("coord_errorcode")
     visitorInfo["referrer"] = unquote(url) if url else request.referrer
-    visitorInfo["cl_lat"] = request.form.get("lat", request.cookies.get("cl_lat", 0.0))
-    visitorInfo["cl_lng"] = request.form.get("long", request.cookies.get("cl_lng", 0.0))
-    visitorInfo["language"] = request.args.get("language", "missing")
+    visitorInfo["cl_lat"] = data.get("lat", request.cookies.get("cl_lat", 0.0))
+    visitorInfo["cl_lng"] = data.get("long", request.cookies.get("cl_lng", 0.0))
+    visitorInfo["language"] = data.get("language")
     visitorInfo["visitorId"] = request.cookies.get("unique_visitor")
     return visitorInfo
 

@@ -31,17 +31,19 @@
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
 function showError(error) {
-
-    $.post($SCRIPT_ROOT + '/regVisitor', {
-
-    coord_errorcode: error.code 
-});
-
-      //   $.getJSON($SCRIPT_ROOT + '/regVisitor', {
-      //   coord_errorcode: error.code
-      // }, function(data) {
-      //   // do something from data recived back.
-      // });
+    $.ajax({
+        type: "POST",
+        url: $SCRIPT_ROOT + '/regVisitor',
+        contentType: "application/json",
+        data: JSON.stringify({coord_errorcode : error.code }),
+        dataType: "json",
+        success: function(response) {
+            // do something
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
 
     return false;
 }
@@ -63,12 +65,18 @@ function dir(object) {
 }
 
 function getLocation() {
-$.post($SCRIPT_ROOT + '/regVisitor', {
-    language : window.navigator.userLanguage || window.navigator.language,
-    referrer :  document.referrer || "/",
-    increment : 1
-}, function(data) {
-        if (data.status == "success"){
+    sendData = {
+        language : window.navigator.userLanguage || window.navigator.language,
+        referrer :  document.referrer || "/",
+        increment : 1
+    };
+    $.ajax({
+        type: "POST",
+        url: $SCRIPT_ROOT + '/regVisitor',
+        contentType: "application/json",
+        data: JSON.stringify(sendData),
+        dataType: "json",
+        success: function(response) {
             if (navigator.geolocation) {
                 try {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -79,14 +87,35 @@ $.post($SCRIPT_ROOT + '/regVisitor', {
             } else {
                 console.log("Geolocation is not supported by this browser.");
             }
-    }
-      });
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
+
     return false;
 
 
 }
 
 function showPosition(position) {
+
+$.ajax({
+        type: "POST",
+        url: $SCRIPT_ROOT + '/regVisitor',
+        contentType: "application/json",
+        data: JSON.stringify({
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+            }),
+        dataType: "json",
+        success: function(response) {
+           console.log(response.status)
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
 
 	$.post($SCRIPT_ROOT + '/regVisitor', {
         lat: position.coords.latitude,

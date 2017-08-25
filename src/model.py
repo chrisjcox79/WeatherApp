@@ -15,9 +15,6 @@ from sqlalchemy import DateTime
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 
-USER_ID_SEQ = Sequence('user_id_seq')  # define sequence explicitly
-
-
 
 def updateOrInsertToTable(user_agent, visitorInfo):
     """ Updates the table if visitor id exists else insert for new visitor
@@ -51,12 +48,14 @@ def updateOrInsertToTable(user_agent, visitorInfo):
 
     if existing:
         existing.version = user_agent.version
-        existing.cl_lat = float(cl_lat)
-        existing.cl_lng = float(cl_lng)
+        # becuase if intital language, latitude and longitude was retrieved do not overwrite incorrect.
+        existing.cl_lat = float(cl_lat) if cl_lat != 0.0 else existing.cl_lat
+        existing.cl_lng = float(cl_lng) if cl_lng != 0.0 else existing.cl_lng
+        existing.language = language if language else existing.language
         existing.ip = visitorIp
-        existing.language = language
         existing.referrer = referrer
-        existing.count = existing.count + 1
+        if visitorInfo.get("increment"):
+            existing.count = existing.count + 1
         existing.coord_errorcode = coord_errorcode
         existing.visitdatetime = dtWithZone
         db.session.commit()
