@@ -58,6 +58,12 @@ def getTimeZoneURL(latitude, longitude):
 def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+def getTimezoneFromIP(ip):
+    data = getJsonFromURL("http://ip-api.com/json/{}".format(ip))
+    tz = "Asia/Kolkata" if ip == "127.0.0.1" else "UTC"
+    if data["status"] == "success":
+        tz = data["timezone"]
+    return tz
 
 def getHostIp():
     import socket

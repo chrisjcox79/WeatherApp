@@ -32,11 +32,16 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
 function showError(error) {
 
-        $.getJSON($SCRIPT_ROOT + '/regVisitor', {
-        coord_errorcode: error.code
-      }, function(data) {
-        // do something from data recived back.
-      });
+    $.post($SCRIPT_ROOT + '/regVisitor', {
+
+    coord_errorcode: error.code 
+});
+
+      //   $.getJSON($SCRIPT_ROOT + '/regVisitor', {
+      //   coord_errorcode: error.code
+      // }, function(data) {
+      //   // do something from data recived back.
+      // });
 
     return false;
 }
@@ -58,10 +63,11 @@ function dir(object) {
 }
 
 function getLocation() {
-    $.getJSON($SCRIPT_ROOT + '/regVisitor', {
-        language : window.navigator.userLanguage || window.navigator.language,
-        referrer :  document.referrer || "/"
-      }, function(data) {
+$.post($SCRIPT_ROOT + '/regVisitor', {
+    language : window.navigator.userLanguage || window.navigator.language,
+    referrer :  document.referrer || "/",
+    increment : 1
+}, function(data) {
         if (data.status == "success"){
             if (navigator.geolocation) {
                 try {
@@ -82,7 +88,7 @@ function getLocation() {
 
 function showPosition(position) {
 
-	$.getJSON($SCRIPT_ROOT + '/regVisitor', {
+	$.post($SCRIPT_ROOT + '/regVisitor', {
         lat: position.coords.latitude,
         long: position.coords.longitude,
       }, function(data) {

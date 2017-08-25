@@ -42,31 +42,31 @@ def getCityFromMyIp(ip):
     """
     geoloc = "http://ip-api.com/json/{}".format(ip)
     data = json.load(urllib2.urlopen(geoloc))
-    return "Bangalore" if data.get("city") == "Bengaluru" else data.get("city")
+    return _utils.cityNameMap(data.get("city"), data.get("city"))
 
-@app.route("/regVisitor", methods=["GET"])
+
+@app.route("/regVisitor", methods=["POST", "GET"])
 def registerVisitor():
-
     visitorInfo = collectVisitorInfo()
-    for endswith in ("newmsg", "regVisitor", ):
-        if visitorInfo["referrer"].endswith(endswith):
-            return jsonify({"status": "coming from newmsg"})
-    try:
-        # if not request.script_root in ('/newmsg',):
-        updateOrInsertToTable(request.user_agent, visitorInfo)
-        return jsonify({"status" : "success"}), 200
-    except Exception, er:
-        return jsonify({"status": "fail:{}".format(er.message)})
-
+    if bool(visitorInfo.get("increment", False)):
+        if str(visitorInfo["referrer"]).find("searchCity") != -1 or visitorInfo["referrer"].endswith("newmsg"):
+            return jsonify({"status": "coming from newmsg or SearchCity found"}), 200
+        try:
+            updateOrInsertToTable(request.user_agent, visitorInfo)
+            return jsonify({"status" : "success"}), 200
+        except Exception, er:
+            return jsonify({"status": "fail:{}".format(er.message)})
+    return jsonify({"status": "fail"}), 200
 
 def collectVisitorInfo():
     visitorInfo = {}
-    url = request.args.get("referrer")
+    url = request.form.get("referrer")
     visitorInfo["clientIP"] = request.access_route[0]
-    visitorInfo["coord_errorcode"] = request.args.get("coord_errorcode")
-    visitorInfo["referrer"] = unquote(url) if url else ""
-    visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat", 0.0))
-    visitorInfo["cl_lng"] = request.args.get("long", request.cookies.get("cl_lng", 0.0))
+    visitorInfo["increment"] = request.form.get("increment")
+    visitorInfo["coord_errorcode"] = request.form.get("coord_errorcode")
+    visitorInfo["referrer"] = unquote(url) if url else request.referrer
+    visitorInfo["cl_lat"] = request.form.get("lat", request.cookies.get("cl_lat", 0.0))
+    visitorInfo["cl_lng"] = request.form.get("long", request.cookies.get("cl_lng", 0.0))
     visitorInfo["language"] = request.args.get("language", "missing")
     visitorInfo["visitorId"] = request.cookies.get("unique_visitor")
     return visitorInfo
@@ -301,14 +301,10 @@ def requrl():
 @app.route('/newmsg', methods=['GET', 'POST'])
 def newmsg():
     form = _appforms.MessagingForm()
-    # if form.validate_on_submit():
+
     if request.method == "POST":
         ip = request.access_route[0]
-        data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(ip))
-        tz = "Asia/Kolkata"
-        if data["status"] == "success":
-            tz = data["timezone"]
-
+        tz = _utils.getTimezoneFromIP(ip)
         dtWithZone = datetime.datetime.now(pytz.timezone(tz))
         name = request.form.get('fullName', "")
         columValues = {

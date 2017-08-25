@@ -20,11 +20,12 @@ USER_ID_SEQ = Sequence('user_id_seq')  # define sequence explicitly
 
 
 def updateOrInsertToTable(user_agent, visitorInfo):
-    """ 
+    """ Updates the table if visitor id exists else insert for new visitor
+
+
         Arguments: 
             user_agent (request.user_agent): request.user_agent object
             visitorInfo (dict): key value pair of visitor information 
-
 
     """
     visitorId =  visitorInfo["visitorId"]
@@ -34,10 +35,7 @@ def updateOrInsertToTable(user_agent, visitorInfo):
     coord_errorcode = visitorInfo.get("coord_errorcode", None)
     cl_lat = visitorInfo.get("cl_lat", 0.0)
     cl_lng = visitorInfo.get("cl_lng", 0.0)
-    data = _utils.getJsonFromURL("http://ip-api.com/json/{}".format(visitorIp))
-    tz = "UTC"
-    if data["status"] == "success":
-        tz = data["timezone"]
+    tz = _utils.getTimezoneFromIP(visitorIp)
     dtWithZone = _datetime.now(pytz.timezone(tz))
     visitorModel = Visitor(
         user_agent.platform,
@@ -58,8 +56,7 @@ def updateOrInsertToTable(user_agent, visitorInfo):
         existing.ip = visitorIp
         existing.language = language
         existing.referrer = referrer
-        if referrer == "":
-            existing.count = existing.count + 1
+        existing.count = existing.count + 1
         existing.coord_errorcode = coord_errorcode
         existing.visitdatetime = dtWithZone
         db.session.commit()
