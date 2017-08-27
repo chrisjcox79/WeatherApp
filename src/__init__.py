@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 import sys
 import os
 from flask import Flask
