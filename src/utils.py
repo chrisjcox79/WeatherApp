@@ -37,6 +37,15 @@ def getJsonFromURL(url, timeout=25):
     return json.loads(response)
 
 
+def getCityDateTime(timezone):
+    url = "https://script.google.com/macros/s/AKfycbyd5AcbAnWi2Yn0xhFRbyzS4qMq1VucMVgVvhul5XqS9HkAyJY/exec?tz={}".format(timezone)
+    data = getJsonFromURL(url)
+    if data.get("status"):
+        return (
+            "{} : {}:{}".format(data.get("hours"), data.get("minutes"), data.get("seconds")),
+            "{}/{}".format(data.get("day"), data.get("monthName"))
+                )
+
 def getVisitorAddressFromLatLong(lat, lng):
     """ provides address based on latitude and longitude
     """
@@ -45,10 +54,10 @@ def getVisitorAddressFromLatLong(lat, lng):
 def getWeatherURL(city, count=2):
 	return "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
 
+# http://weathers.co/api.php?city=Bangalore # try this for weather table header
 
 def getSunriseSunsetURL(lat, lng, date):
 	return "https://api.sunrise-sunset.org/json?lat={}&lng={}&date={}".format(lat, lng, date)
-
 
 def getTimeZoneURL(latitude, longitude):
 	return "http://api.geonames.org/timezoneJSON?formatted=true&lat={}&lng={}&username=seaurchin".format(

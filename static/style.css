@@ -22,7 +22,7 @@ input[type=button]
 }
 
 table.hovertable {
-	width: 70%;
+	width: 100%;
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
 	color:#333333;
@@ -31,21 +31,21 @@ table.hovertable {
 	border-collapse: collapse;
 }
 table.hovertable th {
-	background-color:#c3dde0;
+	background-color:#c6ecc6;
 	border-width: 1px;
 	padding: 6px;
 	border-style: solid;
-	border-color: #a9c6c9;
+	border-color: #d9f2d9;
 }
 
 table.hovertable tr {
-	background-color:#d4e3e5;
+	background-color:#d9f2d9;
 }
 table.hovertable td {
 	border-width: 1px;
 	padding: 5px;
 	border-style: solid;
-	border-color: #a9c6c9;
+	border-color: #d9f2d9;
 }
 
 .date{
@@ -61,4 +61,27 @@ div.flash {
     padding: 0.5em;
     border: 1px solid #AACBE2;
 }
+
+li {
+ list-style-type: none;
+ }
+
+.roundEdgeTop {
+    border: 0px;
+    padding: 10px;
+    width: 70%;
+	background-color:#ccebff;
+    border-top-right-radius: 1em;
+    border-top-left-radius: 1em;
+}
+
+#leftcolumn {
+     background-color: transparent;
+}
+
+#rightcolumn {
+     float: right;
+     background-color: transparent;
+}
+
 

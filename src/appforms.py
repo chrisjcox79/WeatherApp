@@ -8,9 +8,9 @@ from wtforms.validators import DataRequired, InputRequired
 
 
 class CreateForm(Form):
-    """ Custom form
+    """ Custom form for weather search
     """
-    searchCity = StringField('View forcast of city:', validators=[InputRequired("Please enter the city you want to check weather updates")])
+    searchCity = StringField('Search for weather forcast of city:', validators=[InputRequired("Please enter the city you want to check weather updates")])
     count = IntegerField("Days")
     submit = SubmitField("Submit")
 
@@ -20,7 +20,7 @@ def getSearchForcastForm(count):
     """ creates a form object and apply formatting.
     """
     form = CreateForm(request.form)
-    form.searchCity(style="width: 400px;", class_="form-group")
+    form.searchCity(style="width: 400px;", class_="form-group glyphicon glyphicon-plus")
     form.count(style="color: blue; font-size: 46px;")
     form.count.default = count
     form.count.label = "Days" if count > 1 else "Day" 

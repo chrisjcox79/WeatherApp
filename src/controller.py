@@ -45,6 +45,18 @@ def getCityFromMyIp(ip):
     return _utils.cityNameMap(data.get("city"), data.get("city"))
 
 
+@app.route("/citydatetime", methods=["POST"])
+def getCityDateTime():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"status": "No data to process."}), 201
+
+    tz = data.get("tz")
+    time, date = _utils.getCityDateTime(tz)
+    return jsonify({"date": date, "time": _timeUtils.timeConvert(time)}), 200
+
+
 @app.route("/regVisitor", methods=["POST"])
 def registerVisitor():
     data = request.get_json()
@@ -63,6 +75,7 @@ def registerVisitor():
         except Exception, er:
             return jsonify({"status": "fail:{}".format(er.message)})
     return jsonify({"status": "fail"}), 200
+
 
 def collectVisitorInfo(data):
     visitorInfo = {}
@@ -120,8 +133,8 @@ def getSunriseSunset(lat, lng, date, timezone):
     results = data.get("results")
     if not results:
         return "0:0", "0:0"
-    sunrise = data.get("results").get("sunrise").split()[0] # remove AM/PM from UTC time string
-    sunset =  data.get("results").get("sunset").split()[0]
+    sunrise = data.get("results").get("sunrise") #.split()[0] # remove AM/PM from UTC time string
+    sunset =  data.get("results").get("sunset")#.split()[0]
     return _timeUtils.convertUTCtoLocal(date, sunrise, timezone), _timeUtils.convertUTCtoLocal(date, sunset, timezone)
 
 @app.route("/", methods=["POST", "GET"])
@@ -182,7 +195,7 @@ def index():
 
     # if clientIP in ('127.0.0.1', hostIP) or clientIP.startswith("192") and not searchCity:
     if clientIP in ('127.0.0.1', hostIP) and not searchCity:
-        response = make_response(render_template("invalid_city.html", form=form, title=" | Weather App", user_input="Home"))
+        response = make_response(render_template("invalid_city.html", form=form, datetime = {}, title=" | Weather App", user_input="Home"))
         # response.set_cookie("client_lat", cl_lat)
         # response.set_cookie("client_lng", cl_lng)
         return __dropVisitorTrackingCookie(response, visitorInfo)
@@ -196,14 +209,14 @@ def index():
     data = _utils.getJsonFromURL(jsonUrl)
 
     if data.get("status", "pass") == "fail" or not data.get("city"):
-        resp = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+        resp = make_response(render_template("invalid_city.html", form=form, datetime = {}, user_input=searchCity))
         return __dropVisitorTrackingCookie(resp, visitorInfo)
 
     city = data["city"]["name"]
 
     if not isinstance(city , str):
         if city != searchCity and exactMatch:
-            response = make_response(render_template("invalid_city.html", form=form, title=" | Weather App", user_input=searchCity))
+            response = make_response(render_template("invalid_city.html", datetime = {}, form=form, title=" | Weather App", user_input=searchCity))
             # we are keeping the cookie forever so we can track him
             # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
             return __dropVisitorTrackingCookie(response, visitorInfo)
@@ -213,7 +226,7 @@ def index():
     country = data["city"]["country"]
 
     if searchCity != city:
-        resp = make_response(render_template("invalid_city.html", form=form, user_input=searchCity))
+        resp = make_response(render_template("invalid_city.html", form=form, datetime={}, user_input=searchCity))
         resp.set_cookie("unique_visitor", unique_visitor_id)
         return resp
 
@@ -229,6 +242,12 @@ def index():
         timeZone = _timeUtils.getTimeZone(lat, lng)
 
     key = os.getenv("GOOGLE_API_KEY")
+    time, date = _utils.getCityDateTime(timeZone)
+    dateTime = {
+    "date": date,
+    "time": _timeUtils.timeConvert(time),
+    "timezone" : timeZone
+    }
 
     for d in data.get("list"):
         date = _datetime.fromtimestamp(d.get('dt')).strftime('%Y-%m-%d')
@@ -243,7 +262,7 @@ def index():
         render_template(
             "index.html", form = form, 
             forcast_list=forcast_list,
-            lat=math.ceil(lat*100)/100, lng=math.ceil(lng*100)/100, city=city, key=key,
+            lat=math.ceil(lat*100)/100, lng=math.ceil(lng*100)/100, city=city, key=key, datetime=dateTime,
             country=country, title=" | Weather App", count=count or request.cookies.get("count")
             )
         )
@@ -324,8 +343,8 @@ def newmsg():
         insertIntoTable(dtWithZone, 'messages', columValues)
 
         msg = "Thank you, {}".format(name)
-        return render_template('thankyou.html', form=form, msg=msg)
-    return render_template('newMessage.html', form=form, title=" | Messaging", msg="Write your message")
+        return render_template('thankyou.html', form=form, datetime={}, msg=msg)
+    return render_template('newMessage.html', form=form, datetime={}, title=" | Messaging", msg="Write your message")
 
 
 

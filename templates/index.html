@@ -5,19 +5,25 @@
 
 <main class="hero-section">
 	<div class="container">
-
-		<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} <br/>
-    Latitude: {{lat}}, Longitude: {{lng}}</h1>
 		<div class="section-content">
-			<table class="hovertable">
+			<div class="roundEdgeTop">
+				<div id="leftcolumn">
+				<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} <br/>
+    Latitude: {{lat}}, Longitude: {{lng}}</h1>
+				</div>
+				<div id="rightcolumn">
+					Time: {{ datetime["time"] }}<br>
+					Date: {{ datetime["date"] }}
+				</div>
+			<table class="hovertable table-responsive">
 				<tr>
 					<th> Date</th><th>Min</th><th>Max</th><th>Humidity</th>
 						<th>Description</th><th>Sunrise</th>
 						<th>Sunset</th>
 				</tr>
 					{% for day in forcast_list %}
-					<tr onmouseover="this.style.backgroundColor='#ffff66';"
-						onmouseout="this.style.backgroundColor='#d4e3e5';">
+					<tr onmouseover="this.style.backgroundColor='#b3e6b3';"
+						onmouseout="this.style.backgroundColor='#d9f2d9';">
 						<td class="date">{{day[0]}}</td>
 						<td class="id">{{day[1]}}</td>
 						<td class="id">{{day[2]}}</td>
@@ -28,20 +34,25 @@
 					</tr>
 					{% endfor %}
 				</table>
+				<br>
+			<div id="map" ></div>
+			</div>
 		 </div>
 
-		 <div class="section-device">
-		 	<div id="map"></div>
-					 	 
+		 <div class="section-device">	 
 			    <script type="text/javascript">
 					    var map;
 					    function initMap() {
 					        map = new google.maps.Map(document.getElementById('map'), {
 					            center: {lat: {{lat}}, lng: {{lng}}},
-					            zoom: 16
+					            zoom: 18,
+					            mapTypeId: google.maps.MapTypeId.HYBRID,
+					            mapTypeControlOptions: {
+							      style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR
+							    }
 					          });
-					        console.log("map function");
-					        console.log(map);
+					        initialLocation = new google.maps.LatLng({{lat}},{{lng}});
+					        map.setCenter(initialLocation);
 					    }
 				</script>
 

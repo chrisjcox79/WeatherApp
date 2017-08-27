@@ -3,9 +3,13 @@
 <br/>
 <form class="form-horizontal">
     <dl>
-        <dd> {{ form.searchCity.label }}  {{ form.searchCity(size=20) }} 
+        <dd class="inner-addon right-addon">
+            {{ form.searchCity.label }}  {{ form.searchCity(size=20) }}
+            <sup><a title="Compare multiple city weather coming soon" href="#">
+          <span style="margin: 0 0 -10px 0;" class="glyphicon glyphicon-plus"></span>+
+        </a></sup>
         	for next {{ form.count(size=2, class_='count') }} {{ form.count.label }}
-        	<input type="submit" class="btn-primary btn btn-success" value="Submit" id="calculate"  >
+        	<input type="submit" class="btn" value="Submit" id="calculate"  >
         </dd>
         <dd>
             <input type="checkbox" name="exactMatch" checked="checked">Exact Match 
@@ -15,5 +19,4 @@
 
     </dl>
 
-    <!-- onclick="getWeatherForcaset('{{city}}','{{count}}');" -->
  </form>
