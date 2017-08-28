@@ -6,11 +6,15 @@
 <main class="hero-section">
 	<div class="container">
 		<div class="section-content">
+			<div class="sunny weather-icon-pos">
+				<!-- weatehr Icon div -->
+			</div>
 			<div class="roundEdgeTop">
 				<div id="leftcolumn">
 				<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} <br/>
     Latitude: {{lat}}, Longitude: {{lng}}</h1>
 				</div>
+				<div style="height: 100px;"></div>
 				<div id="rightcolumn">
 					Time: {{ datetime["time"] }}<br>
 					Date: {{ datetime["date"] }}

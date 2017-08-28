@@ -24,6 +24,9 @@ a {
   display: inline-block;
 }
 
+.divhgt {
+height:200px; /*height of your image*/
+}
 
 .container {
   width: 1000px;
@@ -136,7 +139,7 @@ header {
 
 .hero-section .section-content {
   position: relative;
-  top: 70px;
+  top: 60px;
 }
 
 .hero-section .section-content h2 {
