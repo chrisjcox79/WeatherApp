@@ -249,7 +249,9 @@ def index():
     "timezone" : timeZone
     }
 
-    for d in data.get("list"):
+    weatherData = data.get("list")
+
+    for d in weatherData:
         date = _datetime.fromtimestamp(d.get('dt')).strftime('%Y-%m-%d')
         mini = d.get("temp").get("min")
         maxi = d.get("temp").get("max")

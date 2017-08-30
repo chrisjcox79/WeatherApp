@@ -76,15 +76,18 @@ li {
 }
 
 .sunny {
-
-   background: transparent url("img/sunny.png") bottom right no-repeat;
-
+   background: url("img/sunny.png");
 }
+
+
 
 .weather-icon-pos{
 	width:100px; /*width of your image*/
    	height:100px; /*height of your image*/
 	position: absolute;
+	background-color: transparent;
+	background-repeat:no-repeat;
+	background-position:right bottom;
 	z-index: 2;
 	display: inline-block;
     top:-50px;

@@ -1,0 +1,23 @@
+	<!--current time -->
+	{% set h = datetime["time"].split(':')[0] | int %}
+	{% set m = datetime["time"].split(':')[-1].split(" ")[0] | int %}
+	{% set ampm = datetime["time"].split(":")[-1].split(" ")[-1] %}
+	<!-- Sunset time -->
+	{% set sunseth = forcast_list[0][6].split(':')[0] | int %}
+	{% set sunsetm = forcast_list[0][6].split(':')[-1].split(" ")[0] | int %}
+	{% set amp = forcast_list[0][6].split(":")[-1].split(" ")[-1] %}
+    {% if 'clouds' in forcast_list[0][4]  %}
+    	{% set filename = 'clouds.png' %}
+		    {% if h > sunseth %}
+		    	{% if ampm == "PM" %}
+		    	{% set filename = 'cloudy-night.png' %}
+		    	{% endif %}
+		    {% endif %}
+    {% elif 'clear' in forcast_list[0][4]  %}
+    {% set filename = 'sunny.png' %}
+    {% elif 'rain' in forcast_list[0][4] %}
+    	{% set filename = 'rain.png' %}
+    {% endif %}
+
+    <div style="background: right bottom no-repeat url('../static/img/weather/{{filename}}')" class="weather-icon-pos">
+    </div>
