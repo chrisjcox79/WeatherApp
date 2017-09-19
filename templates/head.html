@@ -26,7 +26,6 @@
 <!-- convert long lat to address -->
 <!-- http://maps.googleapis.com/maps/api/geocode/json?latlng=13.0149847,77.6789976-->
 <!-- https://www.w3schools.com/html/html5_geolocation.asp-->
-
 <script>
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
@@ -53,7 +52,9 @@ function getcitydateTime(){
         type: "POST",
         url: $SCRIPT_ROOT + '/citydatetime',
         contentType: "application/json",
+        {% if datetime is defined %}
         data: JSON.stringify({tz: '{{datetime["timezone"]}}'}),
+        {% endif %}
         dataType: "json",
         success: function(data) {
      document.getElementById("rightcolumn").innerHTML = "Time: " + data.time + "<br>Date: " + data.date;
@@ -118,22 +119,6 @@ function getLocation() {
 
 function showPosition(position) {
 
-$.ajax({
-        type: "POST",
-        url: $SCRIPT_ROOT + '/regVisitor',
-        contentType: "application/json",
-        data: JSON.stringify({
-            lat: position.coords.latitude,
-            long: position.coords.longitude,
-            }),
-        dataType: "json",
-        success: function(response) {
-           console.log(response.status)
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
 
 	$.post($SCRIPT_ROOT + '/regVisitor', {
         lat: position.coords.latitude,

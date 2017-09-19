@@ -12,28 +12,59 @@ cityNameMap = {
 
 }
 
+
+def getCityFromMyIp(ip):
+    """ fetch city based on user local public ip
+    """
+    ip = ip if ip != "127.0.0.1" else ""
+    geoloc = "http://ip-api.com/json/{}".format(ip)
+    data = json.load(urllib2.urlopen(geoloc))
+    return cityNameMap.get(data.get("city"), data.get("city"))
+
+
+def getLongLatFromIP(ip):
+    city = getCityFromMyIp(ip)
+    if city:
+        url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
+        response = urllib2.urlopen(url)
+        data = json.load(response)
+        if data["status"] == u'OK':
+            lat = data["results"][-1]["geometry"]["bounds"]["northeast"]["lat"]
+            lng = data["results"][-1]["geometry"]["bounds"]["northeast"]["lng"]
+            city = data["results"][-1][u"address_components"][0]["long_name"]
+            return lat, lng, city
+    return ("31.03", "75.79", "Phillaur")
+
+
 def getplace(lat, lon):
+    """ get the place from latitude and longitude.
+    """
     url = "http://maps.googleapis.com/maps/api/geocode/json?"
     url += "latlng={},{}&sensor=false".format(lat, lon)
-    v = urllib2.urlopen(url).read()
-    j = json.loads(v)
-    components = j['results'][0]['address_components']
-    country = town = None
-    for c in components:
-        if "country" in c['types']:
-            country = c['long_name']
-        if "political" in c['types'] and "locality" in c['types']:
-            town = c['long_name']
+    j = getJsonFromURL(url)
+    town = country = None
+    if j["status"] != "fail":
+        components = j['results'][0]['address_components']
+        for c in components:
+            if "political" in c['types'] and "locality" in c['types']:
+                town = c['long_name']
+            if "country" in c['types']:
+                country = c['long_name']
     return town, country
 
 
+def getJsonFromURL(url, timeout=5):
+    """ opens provided url and provides json data
+    """
 
-def getJsonFromURL(url, timeout=25):
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
     except Exception, er:
-        # raise ValueError("Failed to load URL")
         return {"status": "fail", "Description": "this is manually forced due to {}".format(er.message)}
+    try:
+        data = json.loads(response)
+    except ValueError:
+        return {"status": "fail" }
     return json.loads(response)
 
 
@@ -42,7 +73,7 @@ def getCityDateTime(timezone):
     data = getJsonFromURL(url)
     if data.get("status"):
         return (
-            "{} : {}:{}".format(data.get("hours"), data.get("minutes"), data.get("seconds")),
+            "{}:{}:{}".format(data.get("hours"), data.get("minutes"), data.get("seconds")),
             "{}/{}".format(data.get("day"), data.get("monthName"))
                 )
 
@@ -68,6 +99,7 @@ def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def getTimezoneFromIP(ip):
+    ip = ip if ip != "127.0.0.1" else ""
     data = getJsonFromURL("http://ip-api.com/json/{}".format(ip))
     tz = "Asia/Kolkata" if ip == "127.0.0.1" else "UTC"
     if data["status"] == "success":

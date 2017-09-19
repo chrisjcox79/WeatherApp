@@ -6,43 +6,29 @@ from flask import request
 from flask import flash
 from flask import jsonify
 from flask import make_response
-import math
-import os
-from urllib import unquote
-import timeUtils as _timeUtils
+from flask.views import View
+
 import utils as _utils
 import appforms as _appforms
-
+import views as _views
+import dataStruct as _ds
 from model import db as _db
-from model import insertIntoTable, updateOrInsertToTable
+from model import updateOrInsertToTable
 
+import math
+import os
 import datetime
 import pytz
-from datetime import datetime as _datetime
 import urllib2
 import json
+from urllib import unquote
+import timeUtils as _timeUtils
+from datetime import datetime as _datetime
 
 
-def getLongLatFromIP(ip):
-    city = getCityFromMyIp(ip)
-    if city:
-        url = "http://maps.googleapis.com/maps/api/geocode/json?address={}&sensor=false".format(city)
-        response = urllib2.urlopen(url)
-        data = json.load(response)
-        if data["status"] == u'OK':
-            lat = data["results"][-1]["geometry"]["bounds"]["northeast"]["lat"]
-            lng = data["results"][-1]["geometry"]["bounds"]["northeast"]["lng"]
-            city = data["results"][-1][u"address_components"][0]["long_name"]
-            return lat, lng, city
-    return (None, None, None)
+app.add_url_rule('/', view_func=_views.Index.as_view('index', template_name="index.html"))
+app.add_url_rule('/newmsg', view_func=_views.Messaging.as_view('newmsg', template_name="index.html"))
 
-
-def getCityFromMyIp(ip):
-    """ fetch city based on user local public ip
-    """
-    geoloc = "http://ip-api.com/json/{}".format(ip)
-    data = json.load(urllib2.urlopen(geoloc))
-    return _utils.cityNameMap(data.get("city"), data.get("city"))
 
 
 @app.route("/citydatetime", methods=["POST"])
@@ -67,7 +53,6 @@ def registerVisitor():
 
     if bool(visitorInfo.get("increment", False)):
         if str(visitorInfo["referrer"]).find("searchCity") != -1 or visitorInfo["referrer"].endswith("newmsg"):
-            print str(visitorInfo["referrer"]).find("searchCity") 
             return jsonify({"status": "coming from newmsg or SearchCity found"}), 200
         try:
             updateOrInsertToTable(request.user_agent, visitorInfo)
@@ -78,67 +63,21 @@ def registerVisitor():
 
 
 def collectVisitorInfo(data):
-    visitorInfo = {}
+
     url = data.get("referrer") # coming from javascript
-    visitorInfo["clientIP"] = request.access_route[0]
-    visitorInfo["increment"] = data.get("increment")
-    visitorInfo["coord_errorcode"] = data.get("coord_errorcode")
-    visitorInfo["referrer"] = unquote(url) if url else request.referrer
-    visitorInfo["cl_lat"] = data.get("lat", request.cookies.get("cl_lat", 0.0))
-    visitorInfo["cl_lng"] = data.get("long", request.cookies.get("cl_lng", 0.0))
-    visitorInfo["language"] = data.get("language")
-    visitorInfo["visitorId"] = request.cookies.get("unique_visitor")
-    return visitorInfo
+    _ds.visitorInfo["clientIP"] = request.access_route[0]
+    _ds.visitorInfo["increment"] = data.get("increment")
+    _ds.visitorInfo["coord_errorcode"] = data.get("coord_errorcode")
+    _ds.visitorInfo["referrer"] = unquote(url) if url else request.referrer
+    _ds.visitorInfo["cl_lat"] = data.get("lat", request.cookies.get("cl_lat", 0.0))
+    _ds.visitorInfo["cl_lng"] = data.get("long", request.cookies.get("cl_lng", 0.0))
+    _ds.visitorInfo["language"] = data.get("language")
+    _ds.visitorInfo["visitorId"] = request.cookies.get("unique_visitor")
+    return _ds.visitorInfo
 
-def __dropVisitorTrackingCookie(response, visitorInfo):
-    """ drops visitor tacking session cookie and return the response object
-
-        Arguments:
-            response(request.make_response): response object
-    """
-
-    visitorId =  visitorInfo["visitorId"]
-
-    if not request.cookies.get("unique_visitor"):
-        # do not increment counter if visior has no left this domain name
-        response.set_cookie("unique_visitor", visitorId,
-            expires=_datetime.today() + datetime.timedelta(days=365))
-
-    # we are keeping the cookie forever so we can track user
-    # if he re-visit, just overwrite the same cookie with 
-    # its existing value retrieved.
-    response.set_cookie("{}_lastVisit".format(visitorId))
-
-    return response
-
-
-def getSunriseSunset(lat, lng, date, timezone):
-    """ provides sunrise and sunset time in 
-        local timezone of city whose longitude 
-        and latitude are given.
-
-        Args:
-            latitude (float): latitude location value
-            longitude (float): longitudnal location value
-            date (str): date for which sunrise and sunset
-                is requested.
-            timezone (str): timezone to convert utc tp local time
-
-        Returns:
-            (tuple): sunrise and sunset in standard time
-
-    """
-    url = _utils.getSunriseSunsetURL(lat, lng, date)
-    data = _utils.getJsonFromURL(url)
-    results = data.get("results")
-    if not results:
-        return "0:0", "0:0"
-    sunrise = data.get("results").get("sunrise") #.split()[0] # remove AM/PM from UTC time string
-    sunset =  data.get("results").get("sunset")#.split()[0]
-    return _timeUtils.convertUTCtoLocal(date, sunrise, timezone), _timeUtils.convertUTCtoLocal(date, sunset, timezone)
 
 @app.route("/", methods=["POST", "GET"])
-def index():
+def index2():
     """ This function is the entry point for index page.
     """
 
@@ -152,16 +91,16 @@ def index():
     exactMatch = True
     timeZone = None
     
-    visitorInfo = {}
+    # visitorInfo = {}
 
     # first check if unique visitor id cookie exists else create unique visitor id
     unique_visitor_id = request.cookies.get("unique_visitor", _utils.id_generator())
-    visitorInfo["visitorId"] = unique_visitor_id
+    _ds.visitorInfo["visitorId"] = unique_visitor_id
 
     # always read latest date time visit from db and set cookie
     unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
 
-    visitorInfo["clientIP"] = clientIP
+    _ds.visitorInfo["clientIP"] = clientIP
 
     if unique_visitor_lastVisit:
         flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")[:-1]))
@@ -179,8 +118,8 @@ def index():
     if not searchCity:
         searchCity = request.cookies.get("last_searchCity")
 
-    visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat"))
-    visitorInfo["cl_lng"] = request.args.get("lng", request.cookies.get("cl_lng"))
+    _ds.visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat"))
+    _ds.visitorInfo["cl_lng"] = request.args.get("lng", request.cookies.get("cl_lng"))
 
     if not searchCity:
         ## lets get from googleapis geocode
@@ -198,7 +137,7 @@ def index():
         response = make_response(render_template("invalid_city.html", form=form, datetime = {}, title=" | Weather App", user_input="Home"))
         # response.set_cookie("client_lat", cl_lat)
         # response.set_cookie("client_lng", cl_lng)
-        return __dropVisitorTrackingCookie(response, visitorInfo)
+        return __dropVisitorTrackingCookie(response)
 
 
     exactMatch = bool(request.args.get("exactMatch"))
@@ -210,7 +149,7 @@ def index():
 
     if data.get("status", "pass") == "fail" or not data.get("city"):
         resp = make_response(render_template("invalid_city.html", form=form, datetime = {}, user_input=searchCity))
-        return __dropVisitorTrackingCookie(resp, visitorInfo)
+        return __dropVisitorTrackingCookie(resp)
 
     city = data["city"]["name"]
 
@@ -219,7 +158,7 @@ def index():
             response = make_response(render_template("invalid_city.html", datetime = {}, form=form, title=" | Weather App", user_input=searchCity))
             # we are keeping the cookie forever so we can track him
             # and if he revisit, just overwrite the same cookie with its exisitng value retrieved.
-            return __dropVisitorTrackingCookie(response, visitorInfo)
+            return __dropVisitorTrackingCookie(response)
         else:
              city = str(data["city"]["name"].encode("utf-8").encode('string-escape'))
 
@@ -259,6 +198,7 @@ def index():
         desc = d.get("weather")[0].get("description")
         sunrise , sunset =  getSunriseSunset(lat, lng, date, timeZone)
         forcast_list.append((date, mini, maxi, humid, desc, sunrise, sunset))
+    
     # weather app starts index page
     response = make_response(
         render_template(
@@ -269,7 +209,7 @@ def index():
             )
         )
 
-    response = __dropVisitorTrackingCookie(response, visitorInfo)
+    response = __dropVisitorTrackingCookie(response)
     if request.args.get("remember"):
         response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
                 expires=_datetime.today() + datetime.timedelta(days=365))
@@ -324,29 +264,6 @@ def uastring():
 def requrl():
     return jsonify({"request.url_root": request.url_root }), 200
 
-
-@app.route('/newmsg', methods=['GET', 'POST'])
-def newmsg():
-    form = _appforms.MessagingForm()
-
-    if request.method == "POST":
-        ip = request.access_route[0]
-        tz = _utils.getTimezoneFromIP(ip)
-        dtWithZone = datetime.datetime.now(pytz.timezone(tz))
-        name = request.form.get('fullName', "")
-        columValues = {
-        'pub_date' : dtWithZone,  
-        'fullName' : name,
-        'visitorId': request.cookies.get("unique_visitor", ""),
-        'message' : request.form.get('message', ""),
-        'email' : request.form.get('email', "")
-        }
-        
-        insertIntoTable(dtWithZone, 'messages', columValues)
-
-        msg = "Thank you, {}".format(name)
-        return render_template('thankyou.html', form=form, datetime={}, msg=msg)
-    return render_template('newMessage.html', form=form, datetime={}, title=" | Messaging", msg="Write your message")
 
 
 

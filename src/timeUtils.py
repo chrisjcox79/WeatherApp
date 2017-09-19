@@ -8,10 +8,50 @@ from dateutil import tz as _tz
 from datetime import datetime as _datetime
 
 
+def getSunriseSunset(lat, lng, date, timezone):
+    """ provides sunrise and sunset time in 
+        local timezone of city whose longitude 
+        and latitude are given.
+
+        Args:
+            latitude (float): latitude location value
+            longitude (float): longitudnal location value
+            date (str): date for which sunrise and sunset
+                is requested.
+            timezone (str): timezone to convert utc tp local time
+
+        Returns:
+            (tuple): sunrise and sunset in standard time
+
+    """
+    url = _utils.getSunriseSunsetURL(lat, lng, date)
+    data = _utils.getJsonFromURL(url)
+    results = data.get("results")
+    if not results:
+        return "0:0", "0:0"
+    sunrise = data.get("results").get("sunrise") #.split()[0] # remove AM/PM from UTC time string
+    sunset =  data.get("results").get("sunset")#.split()[0]
+    return (
+        convertUTCtoLocal(
+            date, 
+            sunrise, 
+            timezone
+            ),
+        convertUTCtoLocal(
+            date, 
+            sunset,
+            timezone
+            )
+        )
+
+
+
 def timeConvert(militaryTime):
     """ convert millitary time to standard time.
     """
     hours, minutes, seconds = militaryTime.split(":")
+    if not all([hours, minutes, seconds]):
+        return ""
     hours, minutes, seconds = int(hours), int(minutes), int(seconds)
     setting = " AM"
     if hours > 12:

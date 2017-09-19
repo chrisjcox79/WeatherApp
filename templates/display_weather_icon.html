@@ -1,3 +1,5 @@
+
+	{% if datetime is defined %}
 	<!--current time -->
 	{% set h = datetime["time"].split(':')[0] | int %}
 	{% set m = datetime["time"].split(':')[-1].split(" ")[0] | int %}
@@ -21,3 +23,4 @@
 
     <div style="background: right bottom no-repeat url('../static/img/weather/{{filename}}')" class="weather-icon-pos">
     </div>
+    {% endif %}

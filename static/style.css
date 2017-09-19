@@ -54,6 +54,7 @@ table.hovertable td {
 
 .id, .date, .action {
    width: 2em;
+   text-align: center;
 }
 
 div.flash {
@@ -75,10 +76,9 @@ li {
     border-top-left-radius: 1em;
 }
 
-.sunny {
-   background: url("img/sunny.png");
+td {    
+    text-align: center;
 }
-
 
 
 .weather-icon-pos{

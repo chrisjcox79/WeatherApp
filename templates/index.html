@@ -6,7 +6,9 @@
 <main class="hero-section">
 	<div class="container">
 		<div class="section-content">
-			{% include "display_weather_icon.html" %}
+			{% if datetime is defined %}
+				{% include "display_weather_icon.html" %}
+
 			<div class="roundEdgeTop">
 				<div id="leftcolumn">
 				<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} <br/>
@@ -14,8 +16,10 @@
 				</div>
 				<!-- <div style="height: 100px;"></div> -->
 				<div id="rightcolumn">
+					
 					Time: {{ datetime["time"] }}<br>
 					Date: {{ datetime["date"] }}
+
 				</div>
 			<table class="hovertable table-responsive">
 				<tr>
@@ -87,7 +91,7 @@
 				</script>
 
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{key}}&callback=initMap" async defer></script>
-			
+			{% endif %}
 		<div class="clearfix"></div>
 		</div>
   </main>

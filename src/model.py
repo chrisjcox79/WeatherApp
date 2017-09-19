@@ -7,8 +7,10 @@ from sqlalchemy import schema, Sequence
 from sqlalchemy import MetaData
 from sqlalchemy.orm import sessionmaker
 from flask_heroku import Heroku
+
 import utils as _utils
 import pytz
+from sqlalchemy.sql import select
 from sqlalchemy import create_engine
 from sqlalchemy import DateTime
 
@@ -77,6 +79,30 @@ def updateOrInsertToTable(user_agent, visitorInfo):
         }
         insertIntoTable(dtWithZone, 'visitor', columnValues)
 
+
+
+def getTableEngine(tableName, dtWithZone=None):
+    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+    kwargs = {}
+    if dtWithZone:
+        kwargs = {"options": "-c timezone={}".format(dtWithZone.timetz().tzinfo.zone)}
+    engine = create_engine(db_uri, connect_args=kwargs)
+    meta = MetaData(engine, reflect=True)
+    table = meta.tables[tableName]
+    return table, engine
+
+
+def getFieldValue(tableName, fromField, whereField, where, limit=2):
+    table, engine = getTableEngine(tableName)
+    s = select([table]).limit(limit)
+    conn = engine.connect()
+    result = conn.execute(s)
+
+    for res in  result:
+        # visitorId is a unique field primary key
+        if getattr(res, whereField) == where:
+            yield getattr(res, fromField)
+    conn.close()
 
 
 def insertIntoTable(dtWithZone, tableName, columValues):
