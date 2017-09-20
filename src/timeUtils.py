@@ -52,7 +52,11 @@ def timeConvert(militaryTime):
     hours, minutes, seconds = militaryTime.split(":")
     if not all([hours, minutes, seconds]):
         return ""
-    hours, minutes, seconds = int(hours), int(minutes), int(seconds)
+    try:
+        hours, minutes, seconds = int(hours), int(minutes), int(seconds)
+    except ValueError, er:
+        print hours, minutes, seconds
+        return ""
     setting = " AM"
     if hours > 12:
         setting = " PM"

@@ -14,11 +14,13 @@
 				<h1 class="title">Displaying weather forcast for {{ city }}, {{ country }} <br/>
     Latitude: {{lat}}, Longitude: {{lng}}</h1>
 				</div>
-				<!-- <div style="height: 100px;"></div> -->
+
 				<div id="rightcolumn">
-					
+					<!-- do not display date time of country user is already in -->
+					{% if datetime["show"] %}
 					Time: {{ datetime["time"] }}<br>
 					Date: {{ datetime["date"] }}
+					{% endif %}
 
 				</div>
 			<table class="hovertable table-responsive">

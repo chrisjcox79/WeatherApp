@@ -69,7 +69,7 @@ class Index(View):
 
     def __init__(self, template_name):
         self.template_name = template_name
-        self._dateTimeZone = {}
+        self._dateTimeZone = {"show" : True}
 
     def get_template_name(self):
         raise NotImplementedError()
@@ -126,11 +126,12 @@ class Index(View):
 
         time, date = _utils.getCityDateTime(timeZone)
 
-        self._dateTimeZone = {
-        "date": date,
-        "time": _timeUtils.timeConvert(time),
-        "timezone" : timeZone
-        }
+        self._dateTimeZone["date"] = date
+        self._dateTimeZone["time"] = _timeUtils.timeConvert(time)
+        self._dateTimeZone["timezone"] = timeZone
+
+        if _utils.getJsonFromURL("http://ip-api.com/json/")["countryCode"] == cityData["country"]:
+            self._dateTimeZone["show"] = False
 
 
         cityData["lat"] = lat
@@ -221,7 +222,7 @@ class Index(View):
                 render_template("landing.html", form=form, datetime = {}, user_input=searchCity))
 
         if request.args.get("remember"):
-            response.set_cookie("last_searchCity", "{},{}".format(city.replace(" ", ""), " " + country),
+            response.set_cookie("last_searchCity", city.replace(" ", ""),
                 expires=_datetime.today() + datetime.timedelta(days=365))
         response.set_cookie("count", str(count),
                 expires=_datetime.today() + datetime.timedelta(days=365))
