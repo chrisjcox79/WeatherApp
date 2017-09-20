@@ -116,7 +116,7 @@ class Index(View):
         lat = data["city"]["coord"]["lat"]
         lng = data["city"]["coord"]["lon"]
         forcast = []
-        timeZoneCookeName = "{}_{}_{}".format(city.lower(), lat, lng)
+        timeZoneCookeName = "{}_timezone".format(city.lower())
         timeZone = request.cookies.get(timeZoneCookeName)
 
         if timeZone:
@@ -196,6 +196,11 @@ class Index(View):
                     response = make_response(render_template("landing.html", form=form, datetime={}, title=" | Weather App", user_input="Home"))
                     return _vt.dropVisitorTrackingCookie(response)
 
+        if not searchCity:
+            response = make_response(render_template("landing.html", form=form, datetime={}, title=" | Weather App", user_input="Home"))
+            return _vt.dropVisitorTrackingCookie(response)
+
+
         cityData = self.getCityWeatherForcast(searchCity, count=count)
 
         if cityData.get("forcast"):
@@ -211,9 +216,9 @@ class Index(View):
                     datetime=self._dateTimeZone,
                     country=cityData["country"], title=" | Weather App", 
                     count=count or request.cookies.get("count")
-            )
+                    )
                 )
-            timeZoneCookeName = "{}_{}_{}".format(city.lower(), lat, lng)
+            timeZoneCookeName = "{}_timezone".format(city.lower())
             response.set_cookie(timeZoneCookeName, self._dateTimeZone["timezone"],
                     expires=_datetime.today() + datetime.timedelta(days=365))
         else:
@@ -221,7 +226,7 @@ class Index(View):
                 render_template("landing.html", form=form, datetime = {}, user_input=searchCity))
 
         if request.args.get("remember"):
-            response.set_cookie("last_searchCity", city.replace(" ", ""),
+            response.set_cookie("last_searchCity", city,
                 expires=_datetime.today() + datetime.timedelta(days=365))
         response.set_cookie("count", str(count),
                 expires=_datetime.today() + datetime.timedelta(days=365))

@@ -44,17 +44,20 @@ def getLongLatFromIP(ip):
 def getplace(lat, lon):
     """ get the place from latitude and longitude.
     """
-    url = "http://maps.googleapis.com/maps/api/geocode/json?"
-    url += "latlng={},{}&sensor=false".format(lat, lon)
-    j = getJsonFromURL(url)
     town = country = None
-    if j["status"] != "fail":
-        components = j['results'][0]['address_components']
-        for c in components:
-            if "political" in c['types'] and "locality" in c['types']:
-                town = c['long_name']
-            if "country" in c['types']:
-                country = c['long_name']
+    if all([lat, lon]):
+        url = "http://maps.googleapis.com/maps/api/geocode/json?"
+        url += "latlng={},{}&sensor=false".format(lat, lon)
+        j = getJsonFromURL(url)
+        if j["status"] != "fail":
+            if not j['results']:
+                return town, country
+            components = j['results'][0]['address_components']
+            for c in components:
+                if "political" in c['types'] and "locality" in c['types']:
+                    town = c['long_name']
+                if "country" in c['types']:
+                    country = c['long_name']
     return town, country
 
 
