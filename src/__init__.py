@@ -14,5 +14,5 @@ import config
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Now that app object is available lets import controller
-from src.controller import *
+# Now that app object is available lets import everything from router
+from src.router import *

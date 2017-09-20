@@ -1,10 +1,10 @@
 from flask import request
-from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import Form, StringField, IntegerField, SubmitField
-from wtforms.fields.html5 import EmailField
-from wtforms import TextAreaField
-from wtforms import validators
-from wtforms.validators import DataRequired, InputRequired
+from flask_wtf import FlaskForm, RecaptchaField 
+from wtforms import Form, StringField, IntegerField, SubmitField 
+from wtforms.fields.html5 import EmailField 
+from wtforms import TextAreaField 
+from wtforms import validators 
+from wtforms.validators import DataRequired, InputRequired 
 
 
 class CreateForm(Form):

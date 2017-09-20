@@ -18,7 +18,6 @@ import visitorTracking as _vt
 from model import insertIntoTable
 
 
-
 from flask import flash
 from flask import request
 from flask import make_response
@@ -95,6 +94,7 @@ class Index(View):
 
         jsonUrl = _utils.getWeatherURL(searchCity, count=count)
         data = _utils.getJsonFromURL(jsonUrl)
+        
         # when data retrieval fails from web service.
         if data.get("status", "pass") == "fail" or not data.get("city"):
             return cityData
@@ -163,8 +163,7 @@ class Index(View):
 
         # always read latest date time visit from db and set cookie
         unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
-
-        _ds.visitorInfo["clientIP"] = request.access_route[0]
+        _ds.visitorInfo["clientIP"] = _utils.getClientIp()
 
         if unique_visitor_lastVisit:
             flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")))

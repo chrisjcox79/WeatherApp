@@ -5,13 +5,18 @@ import json
 import urllib2
 import string
 import random
-
+from flask import request
 
 cityNameMap = {
     "Bengaluru" : "Bangalore",
 
 }
 
+
+def getClientIp():
+    """ helper function to mock request module.
+    """
+    return request.access_route[0]
 
 def getCityFromMyIp(ip):
     """ fetch city based on user local public ip
