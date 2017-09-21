@@ -194,7 +194,7 @@ class Index(View):
                     import geodis
                     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
                     importer = GeonamesImporter(fileName, app.config["REDIS_HOST"], app.config["REDIS_PORT"], 0)
-                    importer.runimport()
+                    importer.runImport()
                 else:
                     searchCity, country = gd.name, gd.country
 
