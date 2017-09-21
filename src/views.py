@@ -194,7 +194,7 @@ class Index(View):
                     import geodis
                     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
                     if os.path.exists(fileName):                    
-                        importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0)
+                        importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0, redisPWD=os.getenv("REDIS_PWD"))
                         importer.runImport()
                     else:
                         print "&" * 45
@@ -202,7 +202,7 @@ class Index(View):
                 else:
                     searchCity, country = gd.name, gd.country
 
-                # if fail to retireve from geodis use web service
+                # if fail to retireve from geodis, use web service
                 if not all([searchCity, country]):
                     print "Failied to retireve city from geodis, attempting to use google api"              
                     # use googleapis geocode

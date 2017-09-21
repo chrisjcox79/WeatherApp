@@ -20,14 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 if bool(app.config["REDIS_PWD"]):
 	redis = Redis(app.config["REDIS_HOST"], port=app.config["REDIS_PORT"],
 	db=0, password=app.config["REDIS_PWD"])
-	print "R" * 50
-	print "using password"
-	print "D" * 50
-	print redis
 else:
-	print "*" * 35
-	print "Not using password"
-	print "*" * 35
 	redis = Redis(app.config["REDIS_HOST"], port=app.config["REDIS_PORT"], db=0)
 
 # Now that app object is available lets import everything from router
