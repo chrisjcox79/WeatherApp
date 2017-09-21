@@ -16,10 +16,11 @@ import config
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-print app.config["REDIS_PWD"]
 print "R" * 50
-if app.config["REDIS_PWD"]:
+print app.config["REDIS_PWD"]
 print "D" * 50
+
+if app.config["REDIS_PWD"]:
 	redis = Redis(app.config["REDIS_HOST"], port=app.config["REDIS_PORT"],
 	db=0, password=app.config["REDIS_PWD"])
 else:
