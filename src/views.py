@@ -195,6 +195,9 @@ class Index(View):
                     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
                     importer = GeonamesImporter(fileName, app.config["REDIS_HOST"], app.config["REDIS_PORT"], 0)
                     importer.runimport()
+                else:
+                    searchCity, country = gd.name, gd.country
+
                 # if fail to retireve from geodis use web service
                 if not all([searchCity, country]):
                     print "Failied to retireve city from geodis, attempting to use google api"              
@@ -202,7 +205,6 @@ class Index(View):
                     searchCity, country = _utils.getplace(lat, lng)
                     searchCity = _utils.cityNameMap.get(searchCity, searchCity)
                 else:
-                    searchCity, country = gd.name, gd.country
                     print "got data from geodis"
             else: # get lat long based on IP (may not be accurate)
                 try:
