@@ -9,6 +9,7 @@ import pytz
 import datetime
 
 from src import app
+from src import redis
 import utils as _utils
 import dataStruct as _ds
 import timeUtils as _timeUtils
@@ -17,7 +18,7 @@ import visitorTracking as _vt
 
 from model import insertIntoTable
 
-
+from geodis import city as _gdcity
 from flask import flash
 from flask import request
 from flask import make_response
@@ -180,15 +181,23 @@ class Index(View):
         _ds.visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat"))
         _ds.visitorInfo["cl_lng"] = request.args.get("lng", request.cookies.get("cl_lng"))
 
-
         if not searchCity:
             ## lets get lat long from cookie 
             lat = request.cookies.get("cl_lat")
             lng = request.cookies.get("cl_lng")
             if all([lat, lng]):
-                # and use googleapis geocode
-                searchCity, country = _utils.getplace(lat, lng)
-                searchCity = _utils.cityNameMap.get(searchCity, searchCity)
+                # frsit try using geodis , faster based on redis
+                gd = _gdcity.City.getByLatLon(float(lat), float(lng), redis)
+
+                searchCity, country = gd.name, gd.country
+                # if fail to retireve from geodis use web service
+                if not all([searchCity, country]):
+                    print "Failied to retireve city from geodis, attempting to use google api"              
+                    # use googleapis geocode
+                    searchCity, country = _utils.getplace(lat, lng)
+                    searchCity = _utils.cityNameMap.get(searchCity, searchCity)
+                else:
+                    print "got data from geodis"
             else: # get lat long based on IP (may not be accurate)
                 try:
                     lat, lng, searchCity = _utils.getLongLatFromIP(_ds.visitorInfo["clientIP"])
