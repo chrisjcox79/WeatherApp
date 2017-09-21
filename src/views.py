@@ -193,8 +193,12 @@ class Index(View):
                     from geodis.provider.geonames import GeonamesImporter
                     import geodis
                     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
-                    importer = GeonamesImporter(fileName, app.config["REDIS_HOST"], app.config["REDIS_PORT"], 0)
-                    importer.runImport()
+                    if os.path.exists(fileName):                    
+                        importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0)
+                        importer.runImport()
+                    else:
+                        print "&" * 45
+                        print "cities1000.json does not exists. %s" % os.path.split(geodis.__file__)[0] 
                 else:
                     searchCity, country = gd.name, gd.country
 
