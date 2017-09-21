@@ -155,6 +155,8 @@ class Index(View):
 
 
     def dispatch_request(self):
+        country = None
+        searchCity = None
         count = request.args.get("count") or request.cookies.get("count", 1)
         form = _appforms.getSearchForcastForm(count)
 
@@ -187,20 +189,20 @@ class Index(View):
             lng = request.cookies.get("cl_lng")
             if all([lat, lng]):
                 # frsit try using geodis , faster based on redis
-                gd = _gdcity.City.getByLatLon(float(lat), float(lng), redis)
+                # gd = _gdcity.City.getByLatLon(float(lat), float(lng), redis)
                 
-                if not gd:
-                    from geodis.provider.geonames import GeonamesImporter
-                    import geodis
-                    fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
-                    if os.path.exists(fileName):                    
-                        importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0, redisPWD=os.getenv("REDIS_PWD"))
-                        importer.runImport()
-                    else:
-                        print "&" * 45
-                        print "cities1000.json does not exists. %s" % os.path.split(geodis.__file__)[0] 
-                else:
-                    searchCity, country = gd.name, gd.country
+                # if not gd:
+                #     from geodis.provider.geonames import GeonamesImporter
+                #     import geodis
+                #     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
+                #     if os.path.exists(fileName):                    
+                #         importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0, redisPWD=os.getenv("REDIS_PWD"))
+                #         importer.runImport()
+                #     else:
+                #         print "&" * 45
+                #         print "cities1000.json does not exists. %s" % os.path.split(geodis.__file__)[0] 
+                # else:
+                #     searchCity, country = gd.name, gd.country
 
                 # if fail to retireve from geodis, use web service
                 if not all([searchCity, country]):
