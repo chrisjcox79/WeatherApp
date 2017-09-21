@@ -188,8 +188,13 @@ class Index(View):
             if all([lat, lng]):
                 # frsit try using geodis , faster based on redis
                 gd = _gdcity.City.getByLatLon(float(lat), float(lng), redis)
-
-                searchCity, country = gd.name, gd.country
+                
+                if not gd:
+                    from geodis.provider.geonames import GeonamesImporter
+                    import geodis
+                    fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
+                    importer = GeonamesImporter(fileName, app.config["REDIS_HOST"], app.config["REDIS_PORT"], 0)
+                    importer.runimport()
                 # if fail to retireve from geodis use web service
                 if not all([searchCity, country]):
                     print "Failied to retireve city from geodis, attempting to use google api"              
@@ -197,6 +202,7 @@ class Index(View):
                     searchCity, country = _utils.getplace(lat, lng)
                     searchCity = _utils.cityNameMap.get(searchCity, searchCity)
                 else:
+                    searchCity, country = gd.name, gd.country
                     print "got data from geodis"
             else: # get lat long based on IP (may not be accurate)
                 try:
