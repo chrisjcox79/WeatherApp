@@ -4,6 +4,15 @@ Weather App
 
 ![screenshot](https://github.com/sanfx/WeatherApp/blob/master/screenshot.png?raw=true)
 
+Dependencies:
+=============
+
+geodis 2.0.9
+redis 2.10.6
+SQLAlchemy 1.1.12
+
+
+
 To Run unit tests:
 ==================
 
