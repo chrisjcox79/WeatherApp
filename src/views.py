@@ -9,7 +9,7 @@ import pytz
 import datetime
 
 from src import app
-from src import tz as _tz
+# from src import tz as _tz
 
 import utils as _utils
 import dataStruct as _ds
@@ -140,7 +140,8 @@ class Index(View):
         if timeZone:
             print("Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city))
         else:
-            timeZone = _tz.tzNameAt(lat, lng)
+            timeZone = _timeUtils.getTimeZone(lat, lng)
+            # timeZone = _tz.tzNameAt(lat, lng)
 
         time, date = _utils.getCityDateTime(timeZone)
 
@@ -182,7 +183,7 @@ class Index(View):
 
         # always read latest date time visit from db and set cookie
         unique_visitor_lastVisit = request.cookies.get("{}_lastVisit".format(unique_visitor_id))
-        _ds.visitorInfo["clientIP"] = _utils.getClientIp()
+        _ds.visitorInfo["clientIP"] = self.visitorPublicIp
 
         if unique_visitor_lastVisit:
             flash("You last visited this site on %s" % " ".join(unique_visitor_lastVisit.split(" ")))

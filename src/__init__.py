@@ -3,10 +3,10 @@ __version__ = '1.3.0'
 import sys
 import os
 from flask import Flask
-from tzwhere import tzwhere as _tzwhere
+# from tzwhere import tzwhere as _tzwhere
 
 # loading offline takes time so we load it one time and provide to whole app.
-tz = _tzwhere.tzwhere()
+# tz = _tzwhere.tzwhere() # disabled as hobby-dev exceeds memory usage Heroku Error R14
 
 app = Flask('weatherApp')
 

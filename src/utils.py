@@ -13,11 +13,6 @@ cityNameMap = {
 }
 
 
-def getClientIp():
-    """ helper function to mock request module.
-    """
-    return request.access_route[0]
-
 def getCityFromMyIp(ip):
     """ fetch city based on user local public ip
     """

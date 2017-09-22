@@ -12,6 +12,5 @@ pytz==2017.2
 Shapely==1.6.1
 six==1.11.0
 SQLAlchemy==1.1.14
-tzwhere==3.0.3
 Werkzeug==0.12.2
 WTForms==2.1
