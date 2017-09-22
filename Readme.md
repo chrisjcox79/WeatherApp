@@ -7,9 +7,9 @@ Weather App
 Dependencies:
 =============
 
-geodis 2.0.9
-redis 2.10.6
+
 SQLAlchemy 1.1.12
+tzwhere 3.0.3
 
 
 

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 import sys
 import os
 from flask import Flask
-# from redis import Redis
+from tzwhere import tzwhere as _tzwhere
+
+# loading offline takes time so we load it one time and provide to whole app.
+tz = _tzwhere.tzwhere()
+
 app = Flask('weatherApp')
 
 app.config['RECAPTCHA_PUBLIC_KEY'] = '6Lfo6iwUAAAAAOe_vmVjdQbjzeBxM8imuIC3eJmo'
@@ -16,12 +20,6 @@ import config
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# if bool(app.config["REDIS_PWD"]):
-# 	redis = Redis(app.config["REDIS_HOST"], port=app.config["REDIS_PORT"],
-# 	db=0, password=app.config["REDIS_PWD"])
-# else:
-# 	redis = Redis(app.config["REDIS_HOST"], port=app.config["REDIS_PORT"], db=0)
 
 # Now that app object is available lets import everything from router
 from src.router import *

@@ -84,6 +84,7 @@ def getTimeZone(latitude, longitude):
     """
     # Note: We can also use this web service to get sunrise 
     # and sunset but due to inacuracy we use surise-sunset.org
+    
     print("getting time zone from web service")
     url = _utils.getTimeZoneURL(latitude, longitude)
     geoData = _utils.getJsonFromURL(url)

@@ -9,7 +9,8 @@ import pytz
 import datetime
 
 from src import app
-# from src import redis
+from src import tz as _tz
+
 import utils as _utils
 import dataStruct as _ds
 import timeUtils as _timeUtils
@@ -18,7 +19,6 @@ import visitorTracking as _vt
 
 from model import insertIntoTable
 
-# from geodis import city as _gdcity
 from flask import flash
 from flask import request
 from flask import make_response
@@ -70,6 +70,23 @@ class Index(View):
     def __init__(self, template_name):
         self.template_name = template_name
         self._dateTimeZone = {"show" : True}
+
+    @property
+    def visitorCountryCode(self):
+        if self.visitorPublicIp == "127.0.0.1":
+            return _utils.getJsonFromURL(
+                "http://ip-api.com/json"
+                )["countryCode"]
+        else:
+            return _utils.getJsonFromURL("http://ip-api/json/{}".format(
+                self.visitorPublicIp
+                )
+            )["countryCode"]
+
+    @property
+    def visitorPublicIp(self):
+        return request.access_route[0]
+
 
     def get_template_name(self):
         raise NotImplementedError()
@@ -123,7 +140,7 @@ class Index(View):
         if timeZone:
             print("Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city))
         else:
-            timeZone = _timeUtils.getTimeZone(lat, lng)
+            timeZone = _tz.tzNameAt(lat, lng)
 
         time, date = _utils.getCityDateTime(timeZone)
 
@@ -131,9 +148,8 @@ class Index(View):
         self._dateTimeZone["time"] = _timeUtils.timeConvert(time)
         self._dateTimeZone["timezone"] = timeZone
 
-        if _utils.getJsonFromURL("http://ip-api.com/json/")["countryCode"] == cityData["country"]:
+        if self.visitorCountryCode == cityData["country"]:
             self._dateTimeZone["show"] = False
-
 
         cityData["lat"] = lat
         cityData["lng"] = lng
@@ -188,30 +204,8 @@ class Index(View):
             lat = request.cookies.get("cl_lat")
             lng = request.cookies.get("cl_lng")
             if all([lat, lng]):
-                # frsit try using geodis , faster based on redis
-                # gd = _gdcity.City.getByLatLon(float(lat), float(lng), redis)
-                
-                # if not gd:
-                #     from geodis.provider.geonames import GeonamesImporter
-                #     import geodis
-                #     fileName = os.path.split(geodis.__file__)[0] + "/data/cities1000.json"
-                #     if os.path.exists(fileName):                    
-                #         importer = GeonamesImporter(fileName, os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"), 0, redisPWD=os.getenv("REDIS_PWD"))
-                #         importer.runImport()
-                #     else:
-                #         print "&" * 45
-                #         print "cities1000.json does not exists. %s" % os.path.split(geodis.__file__)[0] 
-                # else:
-                #     searchCity, country = gd.name, gd.country
-
-                # if fail to retireve from geodis, use web service
-                # if not all([searchCity, country]):
-                    # print "Failied to retireve city from geodis, attempting to use google api"              
-                    # use googleapis geocode
+                # use googleapis geocode
                 searchCity, country = _utils.getplace(lat, lng)
-                #     searchCity = _utils.cityNameMap.get(searchCity, searchCity)
-                # else:
-                #     print "got data from geodis"
             else: # get lat long based on IP (may not be accurate)
                 try:
                     lat, lng, searchCity = _utils.getLongLatFromIP(_ds.visitorInfo["clientIP"])
