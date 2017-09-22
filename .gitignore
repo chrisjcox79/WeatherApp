@@ -1,7 +1,7 @@
+activate
 weatherApp.sublime-project
 terminal.glue
 testingJS.htm
 *.pyc
-activate
 *.pem
 venv
