@@ -7,7 +7,8 @@ import math
 import urllib2
 import pytz
 import datetime
-
+from redis import Redis
+from geodis import city as _gdCity
 from src import app
 # from src import tz as _tz
 
@@ -140,6 +141,7 @@ class Index(View):
         if timeZone:
             print("Retrieved %s cookie %s for city %s" % (timeZoneCookeName, request.cookies.get(timeZoneCookeName), city))
         else:
+            # timeZone = Redis
             timeZone = _timeUtils.getTimeZone(lat, lng)
             # timeZone = _tz.tzNameAt(lat, lng)
 
@@ -205,8 +207,14 @@ class Index(View):
             lat = request.cookies.get("cl_lat")
             lng = request.cookies.get("cl_lng")
             if all([lat, lng]):
+                red = None
                 # use googleapis geocode
-                searchCity, country = _utils.getplace(lat, lng)
+                red = Redis(_utils.getJsonFromURL("http://san.gotdns.ch/json/ip")["ip"])
+                gd = _gdCity.City.getByLatLon(lat, lng, red)
+                if red and gd:
+                    searchCity, country = gd.name, gd.country
+                else:
+                    searchCity, country = _utils.getplace(lat, lng)
             else: # get lat long based on IP (may not be accurate)
                 try:
                     lat, lng, searchCity = _utils.getLongLatFromIP(_ds.visitorInfo["clientIP"])
