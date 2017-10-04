@@ -75,14 +75,16 @@ class Index(View):
     @property
     def visitorCountryCode(self):
         if self.visitorPublicIp == "127.0.0.1":
-            return _utils.getJsonFromURL(
-                "http://ip-api.com/json"
-                )["countryCode"]
+            return "IN"
         else:
-            return _utils.getJsonFromURL("http://ip-api/json/{}".format(
+            dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
                 self.visitorPublicIp
                 )
-            )["countryCode"]
+            )
+            print "*" * 40
+            print dat
+            print "*" * 40
+            return dat["countryCode"]
 
     @property
     def visitorPublicIp(self):
