@@ -56,14 +56,14 @@ def getplace(lat, lon):
     return town, country
 
 
-def getJsonFromURL(url, timeout=5):
+def getJsonFromURL(url, timeout=25):
     """ opens provided url and provides json data
     """
 
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
     except Exception, er:
-        return {"status": "fail", "Description": "this is manually forced due to {}".format(er.message)}
+        return {"status": "fail", "Description": "this was manually forced due to {}".format(er.message)}
     try:
         data = json.loads(response)
     except ValueError:
