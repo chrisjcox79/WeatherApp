@@ -79,7 +79,7 @@ class Index(View):
             return "IN"
         else:
             response = urllib2.urlopen("http://ip-api/json/{}".format(
-                self.visitorPublicIp).read()
+                self.visitorPublicIp).read())
             dat = json.loads(response)
             # dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
             #     self.visitorPublicIp
