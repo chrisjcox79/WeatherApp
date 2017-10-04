@@ -56,7 +56,7 @@ def getplace(lat, lon):
     return town, country
 
 
-def getJsonFromURL(url, timeout=25):
+def getJsonFromURL(url, timeout=65):
     """ opens provided url and provides json data
     """
 
