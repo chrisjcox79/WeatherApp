@@ -59,7 +59,9 @@ def getplace(lat, lon):
 def getJsonFromURL(url, timeout=65):
     """ opens provided url and provides json data
     """
-
+    print "&" * 20
+    print url
+    print "&" * 20
     try:
         response = urllib2.urlopen(url, timeout=timeout).read()
     except Exception, er:
