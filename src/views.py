@@ -7,7 +7,7 @@ import math
 import json
 import urllib2
 import pytz
-import datetime
+importme
 # from redis import Redis
 # from geodis import city as _gdCity
 from src import app
@@ -79,7 +79,7 @@ class Index(View):
             return "IN"
         else:
             response = urllib2.urlopen("http://ip-api/json/{}".format(
-                self.visitorPublicIp).read())
+                self.visitorPublicIp))
             dat = json.loads(response)
             # dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
             #     self.visitorPublicIp
