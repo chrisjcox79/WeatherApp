@@ -251,13 +251,14 @@ class Index(View):
             timeZoneCookeName = "{}_timezone".format(city.lower())
             response.set_cookie(timeZoneCookeName, self._dateTimeZone["timezone"],
                     expires=_datetime.today() + datetime.timedelta(days=365))
+
+            if request.args.get("remember"):
+                response.set_cookie("last_searchCity", city,
+                expires=_datetime.today() + datetime.timedelta(days=365))
         else:
             response = make_response(
                 render_template("landing.html", form=form, datetime = {}, user_input=searchCity))
 
-        if request.args.get("remember"):
-            response.set_cookie("last_searchCity", city,
-                expires=_datetime.today() + datetime.timedelta(days=365))
         response.set_cookie("count", str(count),
                 expires=_datetime.today() + datetime.timedelta(days=365))
 
