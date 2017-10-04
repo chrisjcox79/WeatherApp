@@ -5,7 +5,7 @@
 import os
 import math
 import json
-import urllib
+import urllib2
 import pytz
 import datetime
 # from redis import Redis
