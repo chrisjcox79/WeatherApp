@@ -78,17 +78,19 @@ class Index(View):
         if self.visitorPublicIp == "127.0.0.1":
             return "IN"
         else:
-            response = urllib2.urlopen("http://ip-api/json/{}".format(
-                self.visitorPublicIp))
-            dat = json.loads(response)
+            response = urllib2.urlopen('http://freegeoip.net/json/%s' % self.visitorPublicIp)
+            parsedData = response.read()
+            countryCode = json.loads(parsedData)["country_code"]
+            # dat = json.loads(response)
             # dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
             #     self.visitorPublicIp
             #     )
             # )
             print "*" * 40
-            print dat
+            print parsedData
             print "*" * 40
-            return dat["countryCode"]
+            return countryCode
+            # return dat["countryCode"]
 
     @property
     def visitorPublicIp(self):
