@@ -4,7 +4,8 @@
 
 import os
 import math
-import urllib2
+import json
+import urllib
 import pytz
 import datetime
 # from redis import Redis
@@ -77,10 +78,13 @@ class Index(View):
         if self.visitorPublicIp == "127.0.0.1":
             return "IN"
         else:
-            dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
-                self.visitorPublicIp
-                )
-            )
+            response = urllib2.urlopen("http://ip-api/json/{}".format(
+                self.visitorPublicIp).read()
+            dat = json.loads(response)
+            # dat = _utils.getJsonFromURL("http://ip-api/json/{}".format(
+            #     self.visitorPublicIp
+            #     )
+            # )
             print "*" * 40
             print dat
             print "*" * 40
