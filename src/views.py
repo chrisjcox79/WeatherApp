@@ -203,7 +203,7 @@ class Index(View):
 
         _ds.visitorInfo["cl_lat"] = request.args.get("lat", request.cookies.get("cl_lat"))
         _ds.visitorInfo["cl_lng"] = request.args.get("lng", request.cookies.get("cl_lng"))
-        searchCity = None
+
         if not searchCity:
             ## lets get lat long from cookie 
             lat = request.cookies.get("cl_lat")
