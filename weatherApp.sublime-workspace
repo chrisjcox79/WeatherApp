@@ -97,11 +97,11 @@
 			],
 			[
 				"pro",
-				"property	New Property"
+				"property\tNew Property"
 			],
 			[
 				"p",
-				"property	New Property"
+				"property\tNew Property"
 			],
 			[
 				"utc",
@@ -165,7 +165,7 @@
 			],
 			[
 				"digit",
-				"digitalWrite	Arduino digitalWrite"
+				"digitalWrite\tArduino digitalWrite"
 			],
 			[
 				"mod",
@@ -253,7 +253,7 @@
 			],
 			[
 				"sty",
-				"style	Attr"
+				"style\tAttr"
 			],
 			[
 				"border",
@@ -289,7 +289,7 @@
 			],
 			[
 				"on",
-				"onclick	Attr"
+				"onclick\tAttr"
 			],
 			[
 				"open",
@@ -517,37 +517,15 @@
 			]
 		]
 	},
-	"buffers":
-	[
-		{
-			"file": "src/controller.py",
-			"settings":
-			{
-				"buffer_size": 7298,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/utils.py",
-			"settings":
-			{
-				"buffer_size": 1195,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/model.py",
-			"settings":
-			{
-				"buffer_size": 1357,
-				"line_ending": "Unix"
-			}
-		}
-	],
 	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
 	"command_palette":
 	{
 		"height": 392.0,
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -641,17 +619,11 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/Users/sanjeevkumar/Development/web/python/weatherApp",
-		"/Users/sanjeevkumar/Development/web/python/weatherApp/src",
-		"/Users/sanjeevkumar/Development/web/python/weatherApp/static",
-		"/Users/sanjeevkumar/Development/web/python/weatherApp/templates",
-		"/Users/sanjeevkumar/Development/web/python/flask/todoapp",
-		"/Users/sanjeevkumar/Development/web/python/flask/todoapp/templates"
-	],
 	"file_history":
 	[
+		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/utils.py",
+		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/router.py",
+		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/controller.py",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/templates/newMessage.html",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/templates/layout.html",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/templates/index.html",
@@ -664,10 +636,8 @@
 		"/Users/sanjeevkumar/Development/web/python/flask/todoapp/todoapp.py",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/appforms.py",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/templates/head.html",
-		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/controller.py",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/messages.cfg",
 		"/Users/sanjeevkumar/Development/web/python/flask/todoapp/templates/layout.html",
-		"/Users/sanjeevkumar/Development/web/python/weatherApp/src/utils.py",
 		"/Users/sanjeevkumar/Development/web/python/flask/todoapp/todoapp.cfg",
 		"/Users/sanjeevkumar/Development/web/python/weatherApp/static/style.css",
 		"/Users/sanjeevkumar/Development/web/python/flask/lovelypreregpage/app.py",
@@ -778,18 +748,18 @@
 		"/Users/sanjeevkumar/Development/web/html/lineChart.html",
 		"/Users/sanjeevkumar/Development/web/html/lineChart.js",
 		"/Users/sanjeevkumar/Development/web/html/linearChart.js",
-		"/Users/sanjeevkumar/Desktop/arduinoData.js",
-		"/Users/sanjeevkumar/Desktop/googleGaugeExample_fromgoogle.html"
+		"/Users/sanjeevkumar/Desktop/arduinoData.js"
 	],
 	"find":
 	{
-		"height": 35.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
-		"height": 93.0,
+		"height": 95.0,
 		"where_history":
 		[
+			"/Users/sanjeevkumar/Development/web/python/weatherApp/src",
 			"/Users/sanjeevkumar/Development/web/python/weatherApp",
 			"/Users/sanjeevkumar/Development/web/python/weatherApp/static",
 			"/Developer/Videos/web/python/Flask/Lynda Learning Flask/Exercise Files/section-2",
@@ -810,6 +780,13 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"fetchall",
+			"MetaData",
+			"getJsonFromURL",
+			"json",
+			"make_response",
+			"request",
+			"insertIntoTable",
 			"unique_user",
 			"unique_user_id",
 			"getHostIp",
@@ -930,14 +907,7 @@
 			"pattern_expr",
 			"sorting",
 			"arg",
-			"path",
-			" ",
-			"Markup",
-			"render",
-			"component",
-			"Markup",
-			"_appExceptions",
-			"jsx_compile"
+			"path"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -959,113 +929,6 @@
 		"whole_word": true,
 		"wrap": true
 	},
-	"groups":
-	[
-		{
-			"selected": 2,
-			"sheets":
-			[
-				{
-					"buffer": 0,
-					"file": "src/controller.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7298,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5952,
-								5952
-							]
-						],
-						"settings":
-						{
-							"auto_complete": false,
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2690.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/utils.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1195,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								904,
-								904
-							]
-						],
-						"settings":
-						{
-							"auto_complete": false,
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 12.0,
-						"translation.y": 118.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/model.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1357,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1057,
-								1057
-							]
-						],
-						"settings":
-						{
-							"auto_complete": false,
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 261.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"sheets":
-			[
-			]
-		}
-	],
 	"incremental_find":
 	{
 		"height": 27.0
@@ -1094,7 +957,7 @@
 		"cols":
 		[
 			0.0,
-			0.957374254049,
+			0.0482625482625,
 			1.0
 		],
 		"rows":
@@ -1128,7 +991,7 @@
 	{
 		"height": 124.0
 	},
-	"project": "weatherApp.sublime-project",
+	"pinned_build_system": "",
 	"replace":
 	{
 		"height": 50.0
@@ -1137,6 +1000,7 @@
 	"select_file":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -1149,6 +1013,7 @@
 	"select_project":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
@@ -1157,12 +1022,12 @@
 	"select_symbol":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
 	"settings":
 	{
 	},
@@ -1170,7 +1035,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 107.0,
+	"side_bar_width": 244.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

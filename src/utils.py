@@ -86,6 +86,7 @@ def getVisitorAddressFromLatLong(lat, lng):
     return getJsonFromURL("http://maps.googleapis.com/maps/api/geocode/json?latlng={},{}".format(lat, lng))
 
 def getWeatherURL(city, count=2):
+    ## 1259775
 	return "http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt={}&mode=json&units=metric&appid=c0d8761ca979157a45651a5c7f12a6be".format(city, count)
 
 # http://weathers.co/api.php?city=Bangalore # try this for weather table header
