@@ -78,7 +78,9 @@ class Index(View):
         if self.visitorPublicIp == "127.0.0.1":
             return "IN"
         else:
-            response = urllib2.urlopen('http://freegeoip.net/json/%s' % self.visitorPublicIp)
+            url = "http://api.ipstack.com/{ip}?access_key=3b698aa9015396c511867290a82a32e1".format(ip=self.visitorPublicIp)
+            response = urllib2.urlopen(url)
+            # response = urllib2.urlopen('http://freegeoip.net/json/%s' % self.visitorPublicIp)
             parsedData = response.read()
             countryCode = json.loads(parsedData)["country_code"]
             return countryCode
