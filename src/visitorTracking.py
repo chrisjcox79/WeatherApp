@@ -26,13 +26,17 @@ def dropVisitorTrackingCookie(response):
     # we are keeping the cookie forever so we can track user
     # if he re-visit, just overwrite the same cookie with 
     # its existing value retrieved.
-    # dateTime = list(getFieldValue(
-    #     "visitor", 'visitdatetime', 'visitorId', visitorId
-    #     )
-    # )
+    try:
+        dateTime = list(getFieldValue(
+            "visitor", 'visitdatetime', 'visitorId', visitorId
+            )
+        )
 
-    # if not dateTime:
-    return response
+        if not dateTime:
+            return response
+    except Exception, er:
+        print "Eror while geting visitor dateTime: {}".format(er)
+        return response
 
     dateTime = dateTime[0]
     time = _tc(dateTime.strftime('%H:%M:%S'))

@@ -752,7 +752,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 37.0
 	},
 	"find_in_files":
 	{
@@ -780,6 +780,7 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"dropVisitorTrackingCookie",
 			"fetchall",
 			"MetaData",
 			"getJsonFromURL",
@@ -906,8 +907,7 @@
 			"pattern_match",
 			"pattern_expr",
 			"sorting",
-			"arg",
-			"path"
+			"arg"
 		],
 		"highlight": true,
 		"in_selection": false,

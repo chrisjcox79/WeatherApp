@@ -92,7 +92,7 @@ def getTableEngine(tableName, dtWithZone=None):
 	return table, engine
 
 
-def getFieldValue(tableName, fromField, whereField, where, limit=2):
+def getFieldValue(tableName, fromField, whereField, where, limit=2):		
 	table, engine = getTableEngine(tableName)
 	s = select([table]).limit(limit)
 	conn = engine.connect()
